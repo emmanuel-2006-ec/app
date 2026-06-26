@@ -78,7 +78,7 @@
     <h1>Mzuzu <span>Hub</span></h1>
     <p>Mzuzu University Social Platform</p>
   </div>
-  <div id="loginError" class="error-msg"><i class="fas fa-exclamation-circle"></i> Invalid credentials</div>
+  <div id="loginError" class="error-msg"><i class="fas fa-exclamation-circle"></i> <span id="loginErrorText">Invalid credentials</span></div>
   <div class="form-group">
     <label><i class="fas fa-envelope"></i> Email</label>
     <input type="email" id="loginEmail" placeholder="student@mzuni.ac.mw" />
@@ -110,15 +110,20 @@
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
     const errEl = document.getElementById('loginError');
+    const errText = document.getElementById('loginErrorText');
     errEl.classList.remove('show');
-    if (!email || !password) { errEl.textContent = 'Please fill in all fields.'; errEl.classList.add('show'); return; }
+    if (!email || !password) {
+      errText.textContent = 'Please fill in all fields.';
+      errEl.classList.add('show');
+      return;
+    }
     try {
       const data = await apiCall('/api/login', { method: 'POST', body: JSON.stringify({ email, password }) });
       sessionStorage.setItem('token', data.token);
       sessionStorage.setItem('user', JSON.stringify(data.user));
       window.location.href = '/dashboard.html';
     } catch (e) {
-      errEl.textContent = e.message || 'Invalid credentials';
+      errText.textContent = e.message || 'Invalid credentials';
       errEl.classList.add('show');
     }
   });
@@ -126,7 +131,6 @@
   document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
   document.getElementById('loginEmail').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
 
-  // If already logged in, redirect to dashboard
   if (sessionStorage.getItem('token')) window.location.href = '/dashboard.html';
 </script>
 </body>
