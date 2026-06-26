@@ -10,11 +10,10 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_change_me';
 
-// Middleware
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-// Log every request (helps debugging)
+// Log every request
 app.use((req, res, next) => {
   console.log(`📨 ${req.method} ${req.url}`);
   next();
@@ -58,11 +57,11 @@ const insertFriendship = promisify(friendshipsDB.insert.bind(friendshipsDB));
 const updateFriendship = promisify(friendshipsDB.update.bind(friendshipsDB));
 const findOneFriendship = promisify(friendshipsDB.findOne.bind(friendshipsDB));
 
-// Authentication middleware
+// Auth middleware
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
-    console.log('❌ No token provided');
+    console.log('❌ No token');
     return res.status(401).json({ error: 'Unauthorized' });
   }
   try {
@@ -80,6 +79,7 @@ app.post('/api/register', async (req, res) => {
   const { username, email, password, yearOfStudy, profilePic } = req.body;
   console.log('📝 Register attempt:', username, email);
   if (!username || !email || !password || !yearOfStudy) {
+    console.log('❌ Missing fields');
     return res.status(400).json({ error: 'All fields mandatory' });
   }
   try {
@@ -444,12 +444,12 @@ app.post('/api/businesses', authenticate, async (req, res) => {
   }
 });
 
-// ===== SERVE STATIC FRONTEND =====
+// ===== SERVE STATIC =====
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Catch-all: send dashboard.html (for any non-API route)
+// Fallback to index.html for any non‑API route
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
