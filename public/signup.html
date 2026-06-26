@@ -134,7 +134,7 @@
   </div>
   <button class="btn-primary" id="signupBtn"><i class="fas fa-user-plus"></i> Create Account</button>
   <div class="switch-link">
-    Already have an account? <a href="/login.html">Log in</a>
+    Already have an account? <a href="/index.html">Log in</a>
   </div>
 </div>
 <script>
@@ -163,6 +163,7 @@
     const errEl = document.getElementById('signupError');
     const errText = document.getElementById('signupErrorText');
     errEl.classList.remove('show');
+
     if (!username || !email || !password || !year) {
       errText.textContent = 'All fields are mandatory.';
       errEl.classList.add('show');
@@ -173,6 +174,7 @@
       errEl.classList.add('show');
       return;
     }
+
     const fileInput = document.getElementById('profilePicInput');
     let avatar = getDefaultAvatar();
     if (fileInput.files && fileInput.files[0]) {
@@ -182,12 +184,13 @@
         reader.readAsDataURL(fileInput.files[0]);
       });
     }
+
     try {
       const data = await apiCall('/api/register', {
         method: 'POST',
         body: JSON.stringify({ username, email, password, yearOfStudy: year, profilePic: avatar })
       });
-      // On success, store token and user, then go to dashboard
+      // Success – store token and user, then go to dashboard
       sessionStorage.setItem('token', data.token);
       sessionStorage.setItem('user', JSON.stringify(data.user));
       window.location.href = '/dashboard.html';
@@ -208,6 +211,7 @@
     }
   });
 
+  // If already logged in, go to dashboard
   if (sessionStorage.getItem('token')) window.location.href = '/dashboard.html';
 </script>
 </body>
