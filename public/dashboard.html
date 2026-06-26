@@ -619,6 +619,7 @@
           <input type="text" id="friendSearch" placeholder="Search friends..." />
         </div>
         <div id="pendingRequests" style="margin-bottom:16px;"></div>
+        <div id="findPeopleContainer" style="margin-bottom:16px;"></div>
         <div class="friends-grid" id="friendsGrid"></div>
       </div>
 
@@ -808,31 +809,33 @@ let currentChatTarget = null;
 let currentYearFilter = 'all';
 
 // ============================================================
-//  DASHBOARD ENTRY
+//  DASHBOARD INIT – FIXED: validate token first, then render
 // ============================================================
 async function initDashboard() {
   const token = sessionStorage.getItem('token');
   const userData = sessionStorage.getItem('user');
   if (!token || !userData) {
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
     return;
   }
   try {
-    currentUser = JSON.parse(userData);
-    // Validate token
+    // Validate token by fetching users – if fails, it will throw
     await apiCall('/api/users');
-    // Render
+    currentUser = JSON.parse(userData);
+    // Update UI
     document.getElementById('dashAvatar').src = currentUser.profilePic || getDefaultAvatar();
     document.getElementById('postUserAvatar').src = currentUser.profilePic || getDefaultAvatar();
 
+    // Load all data
     await refreshAll();
     setupEventListeners();
     setInterval(refreshAll, 30000);
   } catch (e) {
-    // Token invalid
+    console.error('Dashboard init error:', e);
+    // Token invalid or network error – redirect to login
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('user');
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
   }
 }
 
@@ -846,9 +849,12 @@ async function refreshAll() {
       renderBusinesses(),
       renderStories(),
       renderFriends(),
-      renderPendingRequests()
+      renderPendingRequests(),
+      renderFindPeople()
     ]);
-  } catch (e) { console.error('Refresh error:', e); }
+  } catch (e) {
+    console.error('Refresh error:', e);
+  }
 }
 
 // ============================================================
@@ -1253,24 +1259,6 @@ window.rejectFriend = async function(userId) {
   } catch (e) { alert('Error rejecting friend: ' + e.message); }
 };
 
-// Add friend from "All Users" section? We don't have a "Find People" tab, but we can add a button in Friends tab.
-// We'll add a "Find People" section inside Friends tab later. For now, we'll add a simple button on each non-friend user in the online list? 
-// But we'll keep it simple: users can send friend request from the Friends tab if we add a "Find People" section.
-// I'll add a "Find People" section in the Friends tab at the top.
-
-// Let's add a "Find People" section below the search box.
-// We'll render it in the renderFriends function? Better to have a separate function.
-// I'll add a "Find People" section now.
-
-// Actually, let's enhance the Friends tab: show "All Users" with an "Add Friend" button if not already friends.
-// I'll modify renderFriends to include a "Find People" section above the friends list.
-
-// But to keep it simple, I'll add a button in the online list: when you click a user, you can add them.
-// We already have online users clickable to chat. We can add a "Add Friend" button in the chat modal or elsewhere.
-// Since the user asked "feature to add friends on friends tab", we need a dedicated "Find People" section.
-
-// I'll add a new function renderFindPeople() and include it in the Friends tab panel.
-
 async function renderFindPeople(search = '') {
   const container = document.getElementById('findPeopleContainer');
   if (!container) return;
@@ -1280,7 +1268,6 @@ async function renderFindPeople(search = '') {
     if (search) {
       allUsers = allUsers.filter(u => u.username.toLowerCase().includes(search.toLowerCase()));
     }
-    // Exclude friends
     const friends = await apiCall('/api/friends');
     const friendIds = friends.map(f => f._id);
     const nonFriends = allUsers.filter(u => !friendIds.includes(u._id));
@@ -1310,14 +1297,6 @@ window.addFriend = async function(userId) {
     await refreshAll();
   } catch (e) { alert('Error: ' + e.message); }
 };
-
-// Now update the Friends tab panel to include the find people section.
-// We'll do that inside the HTML: add a div with id="findPeopleContainer" in tab-friends.
-// I'll update the HTML below. But for now, let's inject it via JavaScript.
-
-// I'll modify the DOM after page load: add a div for find people.
-
-// We'll add it in the init function.
 
 // ============================================================
 //  RENDER VIDEOS
@@ -1540,24 +1519,13 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   try { await apiCall('/api/logout', { method: 'POST' }); } catch (_) {}
   sessionStorage.removeItem('token');
   sessionStorage.removeItem('user');
-  window.location.href = '/login.html';
+  window.location.href = '/index.html';
 });
 
 // ============================================================
 //  INIT
 // ============================================================
-(async function init() {
-  // Add find people container to Friends tab
-  const friendsPanel = document.getElementById('tab-friends');
-  const findDiv = document.createElement('div');
-  findDiv.id = 'findPeopleContainer';
-  findDiv.style.marginBottom = '16px';
-  // Insert after search box
-  const searchBox = document.querySelector('.search-box');
-  friendsPanel.insertBefore(findDiv, searchBox.nextSibling);
-
-  await initDashboard();
-})();
+document.addEventListener('DOMContentLoaded', initDashboard);
 
 console.log('🚀 Mzuzu Hub Dashboard loaded');
 console.log('👨‍💻 Developed by Chimombo Emmanuel — Mzuzu University');
