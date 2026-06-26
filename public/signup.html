@@ -98,7 +98,7 @@
     <h1>Join <span>Mzuzu Hub</span></h1>
     <p>Create your account</p>
   </div>
-  <div id="signupError" class="error-msg"><i class="fas fa-exclamation-circle"></i> Please fix the errors</div>
+  <div id="signupError" class="error-msg"><i class="fas fa-exclamation-circle"></i> <span id="signupErrorText">Please fix the errors</span></div>
   <div class="form-group">
     <label><i class="fas fa-user"></i> Username</label>
     <input type="text" id="signupUsername" placeholder="e.g. john_doe" />
@@ -161,13 +161,17 @@
     const password = document.getElementById('signupPassword').value.trim();
     const year = document.getElementById('signupYear').value;
     const errEl = document.getElementById('signupError');
+    const errText = document.getElementById('signupErrorText');
     errEl.classList.remove('show');
     if (!username || !email || !password || !year) {
-      errEl.textContent = 'All fields are mandatory.'; errEl.classList.add('show'); return;
+      errText.textContent = 'All fields are mandatory.';
+      errEl.classList.add('show');
+      return;
     }
     if (password.length < 6) {
-      errEl.textContent = 'Password must be at least 6 characters.';
-      errEl.classList.add('show'); return;
+      errText.textContent = 'Password must be at least 6 characters.';
+      errEl.classList.add('show');
+      return;
     }
     const fileInput = document.getElementById('profilePicInput');
     let avatar = getDefaultAvatar();
@@ -183,11 +187,12 @@
         method: 'POST',
         body: JSON.stringify({ username, email, password, yearOfStudy: year, profilePic: avatar })
       });
+      // On success, store token and user, then go to dashboard
       sessionStorage.setItem('token', data.token);
       sessionStorage.setItem('user', JSON.stringify(data.user));
       window.location.href = '/dashboard.html';
     } catch (e) {
-      errEl.textContent = e.message || 'Registration failed';
+      errText.textContent = e.message || 'Registration failed';
       errEl.classList.add('show');
     }
   });
@@ -203,7 +208,6 @@
     }
   });
 
-  // If already logged in, redirect to dashboard
   if (sessionStorage.getItem('token')) window.location.href = '/dashboard.html';
 </script>
 </body>
