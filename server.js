@@ -10,12 +10,11 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_change_me';
 
-// Enable CORS and JSON parsing
+// Middleware
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
 
-// Log all requests
+// Log every request (helps debugging)
 app.use((req, res, next) => {
   console.log(`📨 ${req.method} ${req.url}`);
   next();
@@ -76,10 +75,10 @@ const authenticate = (req, res, next) => {
   }
 };
 
-// ===== AUTH =====
+// ===== AUTH ROUTES =====
 app.post('/api/register', async (req, res) => {
   const { username, email, password, yearOfStudy, profilePic } = req.body;
-  console.log('📝 Register:', username, email);
+  console.log('📝 Register attempt:', username, email);
   if (!username || !email || !password || !yearOfStudy) {
     return res.status(400).json({ error: 'All fields mandatory' });
   }
@@ -104,6 +103,7 @@ app.post('/api/register', async (req, res) => {
       createdAt: new Date().toISOString()
     };
     const newUser = await insertUser(user);
+    console.log('✅ User created:', newUser._id);
     const token = jwt.sign({ userId: newUser._id }, JWT_SECRET, { expiresIn: '7d' });
     const { password: pwd, ...userData } = newUser;
     res.status(201).json({ token, user: userData });
@@ -115,13 +115,19 @@ app.post('/api/register', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
-  console.log('🔑 Login:', email);
+  console.log('🔑 Login attempt:', email);
   try {
     const user = await findOneUser({ email });
-    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
-    if (!bcrypt.compareSync(password, user.password)) {
+    if (!user) {
+      console.log('❌ User not found');
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+    const match = bcrypt.compareSync(password, user.password);
+    if (!match) {
+      console.log('❌ Password mismatch');
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    console.log('✅ Login success:', user.username);
     await updateUser({ _id: user._id }, { $set: { isOnline: true, lastSeen: new Date().toISOString() } });
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
     const { password: pwd, ...userData } = user;
@@ -438,9 +444,12 @@ app.post('/api/businesses', authenticate, async (req, res) => {
   }
 });
 
-// ===== SERVE FRONTEND =====
+// ===== SERVE STATIC FRONTEND =====
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Catch-all: send dashboard.html (for any non-API route)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
