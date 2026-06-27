@@ -1712,5 +1712,10 @@ document.addEventListener('DOMContentLoaded', initDashboard);
 console.log('🚀 Mzuzu Hub Dashboard loaded');
 console.log('👨‍💻 Developed by Chimombo Emmanuel — Mzuzu University');
 </script>
+  <script>
+  if (typeof navigator.serviceWorker !== 'undefined') {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
 </body>
 </html>
