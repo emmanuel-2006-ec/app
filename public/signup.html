@@ -138,81 +138,95 @@
   </div>
 </div>
 <script>
-  const API_BASE = '';
-  async function apiCall(endpoint, options = {}) {
-    const headers = { 'Content-Type': 'application/json' };
-    const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
-    if (!res.ok) {
-      let errMsg = 'Request failed';
-      try { const errData = await res.json(); errMsg = errData.error || errMsg; } catch(_) {}
-      throw new Error(errMsg);
+  (function() {
+    const API_BASE = '';
+    async function apiCall(endpoint, options = {}) {
+      const headers = { 'Content-Type': 'application/json' };
+      const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+      if (!res.ok) {
+        let errMsg = 'Request failed';
+        try {
+          const errData = await res.json();
+          errMsg = errData.error || errMsg;
+        } catch(_) {}
+        throw new Error(errMsg);
+      }
+      const text = await res.text();
+      return text ? JSON.parse(text) : null;
     }
-    const text = await res.text();
-    return text ? JSON.parse(text) : null;
-  }
 
-  function getDefaultAvatar() {
-    return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%231a472a"/%3E%3Ctext x="50" y="62" font-size="40" text-anchor="middle" fill="%23f5c842" font-family="Arial"%3E🎓%3C/text%3E%3C/svg%3E';
-  }
+    function getDefaultAvatar() {
+      return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%231a472a"/%3E%3Ctext x="50" y="62" font-size="40" text-anchor="middle" fill="%23f5c842" font-family="Arial"%3E🎓%3C/text%3E%3C/svg%3E';
+    }
 
-  document.getElementById('signupBtn').addEventListener('click', async () => {
-    const username = document.getElementById('signupUsername').value.trim();
-    const email = document.getElementById('signupEmail').value.trim();
-    const password = document.getElementById('signupPassword').value.trim();
-    const year = document.getElementById('signupYear').value;
+    const signupBtn = document.getElementById('signupBtn');
     const errEl = document.getElementById('signupError');
     const errText = document.getElementById('signupErrorText');
-    errEl.classList.remove('show');
 
-    if (!username || !email || !password || !year) {
-      errText.textContent = 'All fields are mandatory.';
-      errEl.classList.add('show');
-      return;
-    }
-    if (password.length < 6) {
-      errText.textContent = 'Password must be at least 6 characters.';
-      errEl.classList.add('show');
-      return;
-    }
+    signupBtn.addEventListener('click', async function(e) {
+      e.preventDefault(); // prevent any default
+      const username = document.getElementById('signupUsername').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value.trim();
+      const year = document.getElementById('signupYear').value;
 
-    const fileInput = document.getElementById('profilePicInput');
-    let avatar = getDefaultAvatar();
-    if (fileInput.files && fileInput.files[0]) {
-      const reader = new FileReader();
-      avatar = await new Promise((resolve) => {
-        reader.onload = e => resolve(e.target.result);
-        reader.readAsDataURL(fileInput.files[0]);
-      });
-    }
+      errEl.classList.remove('show');
 
-    try {
-      const data = await apiCall('/api/register', {
-        method: 'POST',
-        body: JSON.stringify({ username, email, password, yearOfStudy: year, profilePic: avatar })
-      });
-      // Success – store token and user, then go to dashboard
-      sessionStorage.setItem('token', data.token);
-      sessionStorage.setItem('user', JSON.stringify(data.user));
+      // Validate
+      if (!username || !email || !password || !year) {
+        errText.textContent = 'All fields are mandatory.';
+        errEl.classList.add('show');
+        return;
+      }
+      if (password.length < 6) {
+        errText.textContent = 'Password must be at least 6 characters.';
+        errEl.classList.add('show');
+        return;
+      }
+
+      // Get profile picture
+      const fileInput = document.getElementById('profilePicInput');
+      let avatar = getDefaultAvatar();
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        avatar = await new Promise((resolve) => {
+          reader.onload = e => resolve(e.target.result);
+          reader.readAsDataURL(fileInput.files[0]);
+        });
+      }
+
+      try {
+        const data = await apiCall('/api/register', {
+          method: 'POST',
+          body: JSON.stringify({ username, email, password, yearOfStudy: year, profilePic: avatar })
+        });
+        // Success
+        sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('user', JSON.stringify(data.user));
+        window.location.href = '/dashboard.html';
+      } catch (error) {
+        errText.textContent = error.message || 'Registration failed';
+        errEl.classList.add('show');
+        console.error('Signup error:', error);
+      }
+    });
+
+    // Preview avatar
+    document.getElementById('profilePicInput').addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('avatarPreview').innerHTML = `<img src="${e.target.result}" alt="avatar" />`;
+        };
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+
+    // If already logged in, go to dashboard
+    if (sessionStorage.getItem('token')) {
       window.location.href = '/dashboard.html';
-    } catch (e) {
-      errText.textContent = e.message || 'Registration failed';
-      errEl.classList.add('show');
     }
-  });
-
-  // Preview avatar
-  document.getElementById('profilePicInput').addEventListener('change', function() {
-    if (this.files && this.files[0]) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById('avatarPreview').innerHTML = `<img src="${e.target.result}" alt="avatar" />`;
-      };
-      reader.readAsDataURL(this.files[0]);
-    }
-  });
-
-  // If already logged in, go to dashboard
-  if (sessionStorage.getItem('token')) window.location.href = '/dashboard.html';
+  })();
 </script>
 </body>
 </html>
