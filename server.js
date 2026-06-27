@@ -29,31 +29,141 @@ const storiesDB = new Datastore({ filename: path.join(dataDir, 'stories.db'), au
 const businessesDB = new Datastore({ filename: path.join(dataDir, 'businesses.db'), autoload: true });
 const friendshipsDB = new Datastore({ filename: path.join(dataDir, 'friendships.db'), autoload: true });
 
-const { promisify } = require('util');
-const findUsers = promisify(usersDB.find.bind(usersDB));
-const findOneUser = promisify(usersDB.findOne.bind(usersDB));
-const insertUser = promisify(usersDB.insert.bind(usersDB));
-const updateUser = promisify(usersDB.update.bind(usersDB));
+// Helper: promisify with exec
+const execPromise = (cursor) => {
+  return new Promise((resolve, reject) => {
+    cursor.exec((err, docs) => {
+      if (err) reject(err);
+      else resolve(docs);
+    });
+  });
+};
 
-const findPosts = promisify(postsDB.find.bind(postsDB));
-const insertPost = promisify(postsDB.insert.bind(postsDB));
-const updatePost = promisify(postsDB.update.bind(postsDB));
-const findOnePost = promisify(postsDB.findOne.bind(postsDB));
+// Promisified find with sorting
+const findPostsSorted = (query, sort) => {
+  const cursor = postsDB.find(query);
+  if (sort) cursor.sort(sort);
+  return execPromise(cursor);
+};
 
-const findMessages = promisify(messagesDB.find.bind(messagesDB));
-const insertMessage = promisify(messagesDB.insert.bind(messagesDB));
+const findMessagesSorted = (query, sort) => {
+  const cursor = messagesDB.find(query);
+  if (sort) cursor.sort(sort);
+  return execPromise(cursor);
+};
 
-const findStories = promisify(storiesDB.find.bind(storiesDB));
-const insertStory = promisify(storiesDB.insert.bind(storiesDB));
+const findStoriesSorted = (query, sort) => {
+  const cursor = storiesDB.find(query);
+  if (sort) cursor.sort(sort);
+  return execPromise(cursor);
+};
 
-const findBusinesses = promisify(businessesDB.find.bind(businessesDB));
-const insertBusiness = promisify(businessesDB.insert.bind(businessesDB));
+const findBusinessesSorted = (query, sort) => {
+  const cursor = businessesDB.find(query);
+  if (sort) cursor.sort(sort);
+  return execPromise(cursor);
+};
 
-const findFriendships = promisify(friendshipsDB.find.bind(friendshipsDB));
-const insertFriendship = promisify(friendshipsDB.insert.bind(friendshipsDB));
-const updateFriendship = promisify(friendshipsDB.update.bind(friendshipsDB));
-const findOneFriendship = promisify(friendshipsDB.findOne.bind(friendshipsDB));
+// For users and friendships we can keep simple find
+const findUsers = (query) => new Promise((resolve, reject) => {
+  usersDB.find(query).exec((err, docs) => {
+    if (err) reject(err);
+    else resolve(docs);
+  });
+});
 
+const findOneUser = (query) => new Promise((resolve, reject) => {
+  usersDB.findOne(query, (err, doc) => {
+    if (err) reject(err);
+    else resolve(doc);
+  });
+});
+
+const insertUser = (doc) => new Promise((resolve, reject) => {
+  usersDB.insert(doc, (err, newDoc) => {
+    if (err) reject(err);
+    else resolve(newDoc);
+  });
+});
+
+const updateUser = (query, update) => new Promise((resolve, reject) => {
+  usersDB.update(query, update, {}, (err, num) => {
+    if (err) reject(err);
+    else resolve(num);
+  });
+});
+
+const insertPost = (doc) => new Promise((resolve, reject) => {
+  postsDB.insert(doc, (err, newDoc) => {
+    if (err) reject(err);
+    else resolve(newDoc);
+  });
+});
+
+const updatePost = (query, update) => new Promise((resolve, reject) => {
+  postsDB.update(query, update, {}, (err, num) => {
+    if (err) reject(err);
+    else resolve(num);
+  });
+});
+
+const findOnePost = (query) => new Promise((resolve, reject) => {
+  postsDB.findOne(query, (err, doc) => {
+    if (err) reject(err);
+    else resolve(doc);
+  });
+});
+
+const insertMessage = (doc) => new Promise((resolve, reject) => {
+  messagesDB.insert(doc, (err, newDoc) => {
+    if (err) reject(err);
+    else resolve(newDoc);
+  });
+});
+
+const insertStory = (doc) => new Promise((resolve, reject) => {
+  storiesDB.insert(doc, (err, newDoc) => {
+    if (err) reject(err);
+    else resolve(newDoc);
+  });
+});
+
+const insertBusiness = (doc) => new Promise((resolve, reject) => {
+  businessesDB.insert(doc, (err, newDoc) => {
+    if (err) reject(err);
+    else resolve(newDoc);
+  });
+});
+
+const findFriendships = (query) => new Promise((resolve, reject) => {
+  friendshipsDB.find(query).exec((err, docs) => {
+    if (err) reject(err);
+    else resolve(docs);
+  });
+});
+
+const insertFriendship = (doc) => new Promise((resolve, reject) => {
+  friendshipsDB.insert(doc, (err, newDoc) => {
+    if (err) reject(err);
+    else resolve(newDoc);
+  });
+});
+
+const updateFriendship = (query, update) => new Promise((resolve, reject) => {
+  friendshipsDB.update(query, update, {}, (err, num) => {
+    if (err) reject(err);
+    else resolve(num);
+  });
+});
+
+const findOneFriendship = (query) => new Promise((resolve, reject) => {
+  friendshipsDB.findOne(query, (err, doc) => {
+    if (err) reject(err);
+    else resolve(doc);
+  });
+});
+
+// Authentication middleware
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
@@ -240,7 +350,7 @@ app.get('/api/friends/pending', authenticate, async (req, res) => {
 // ===== POSTS =====
 app.get('/api/posts', authenticate, async (req, res) => {
   try {
-    const posts = await findPosts({}).sort({ createdAt: -1 });
+    const posts = await findPostsSorted({}, { createdAt: -1 });
     const populated = await Promise.all(posts.map(async (post) => {
       const author = await findOneUser({ _id: post.author });
       if (author) post.author = { _id: author._id, username: author.username, profilePic: author.profilePic, yearOfStudy: author.yearOfStudy };
@@ -327,12 +437,12 @@ app.post('/api/posts/:postId/comment', authenticate, async (req, res) => {
 app.get('/api/messages/:userId', authenticate, async (req, res) => {
   const { userId } = req.params;
   try {
-    const msgs = await findMessages({
+    const msgs = await findMessagesSorted({
       $or: [
         { from: req.userId, to: userId },
         { from: userId, to: req.userId }
       ]
-    }).sort({ createdAt: 1 });
+    }, { createdAt: 1 });
     res.json(msgs);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -359,7 +469,7 @@ app.post('/api/messages', authenticate, async (req, res) => {
 // ===== STORIES =====
 app.get('/api/stories', authenticate, async (req, res) => {
   try {
-    const stories = await findStories({}).sort({ createdAt: -1 });
+    const stories = await findStoriesSorted({}, { createdAt: -1 });
     const populated = await Promise.all(stories.map(async (s) => {
       const author = await findOneUser({ _id: s.author });
       if (author) s.author = { _id: author._id, username: author.username, profilePic: author.profilePic };
@@ -392,7 +502,7 @@ app.post('/api/stories', authenticate, async (req, res) => {
 // ===== BUSINESSES =====
 app.get('/api/businesses', authenticate, async (req, res) => {
   try {
-    const businesses = await findBusinesses({}).sort({ createdAt: -1 });
+    const businesses = await findBusinessesSorted({}, { createdAt: -1 });
     const populated = await Promise.all(businesses.map(async (b) => {
       const author = await findOneUser({ _id: b.author });
       if (author) b.author = { _id: author._id, username: author.username, profilePic: author.profilePic };
@@ -430,8 +540,6 @@ app.post('/api/businesses', authenticate, async (req, res) => {
 
 // ===== SERVE STATIC =====
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Catch-all: serve index.html for any non-API route (SPA fallback)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
