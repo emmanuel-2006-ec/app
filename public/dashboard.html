@@ -20,7 +20,6 @@
     ::-webkit-scrollbar-track { background:#e8ecf1; }
     ::-webkit-scrollbar-thumb { background:#1a472a; border-radius:8px; }
 
-    /* Header */
     .dash-header {
       background: linear-gradient(135deg, #0f2a1a 0%, #1a472a 60%, #2d7d3a 100%);
       padding: 10px 20px;
@@ -67,7 +66,6 @@
     .dropdown-menu .menu-item.logout { color:#c0392b; }
     .dropdown-menu .menu-item.logout i { color:#c0392b; }
 
-    /* Tabs – smaller */
     .dash-tabs {
       display:flex; background:#fff; border-bottom:1px solid #e8ecf1;
       padding:0 16px; position:sticky; top:58px; z-index:90;
@@ -83,7 +81,6 @@
     .dash-tabs .tab-btn.active { color:#1a472a; border-bottom-color:#1a472a; background:transparent; }
     .dash-tabs .tab-btn i { font-size:15px; }
 
-    /* Stories – compact */
     .stories-bar {
       background:#fff; padding:10px 16px;
       margin:10px 16px 0; border-radius:12px;
@@ -117,7 +114,6 @@
       margin-left:4px;
     }
 
-    /* Main layout – compact */
     .dash-body {
       display:flex; padding:12px 16px 80px; gap:16px;
       max-width:1400px; margin:0 auto;
@@ -175,12 +171,10 @@
       width:6px; height:6px; background:#b0c0d0; border-radius:50%; flex-shrink:0;
     }
 
-    /* Tab panels */
     .tab-panel { display:none; animation:fadeUp 0.3s ease; }
     .tab-panel.active { display:block; }
     @keyframes fadeUp { 0%{ opacity:0; transform:translateY(12px); } 100%{ opacity:1; transform:translateY(0); } }
 
-    /* Create post – compact */
     .create-post-box {
       background:#fff; border-radius:12px; padding:12px 16px;
       margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
@@ -232,7 +226,6 @@
       display:flex; align-items:center; gap:4px;
     }
 
-    /* Post card – compact */
     .post-card {
       background:#fff; border-radius:12px; padding:12px 16px 10px;
       margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
@@ -316,7 +309,6 @@
     }
     .post-card .delete-btn:hover { color:#e74c3c; }
 
-    /* Friends grid – compact */
     .friends-grid {
       display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr));
       gap:12px;
@@ -344,7 +336,6 @@
     }
     .search-box input:focus { border-color:#1a472a; }
 
-    /* Chat list – compact */
     .chat-list {
       display:flex; flex-direction:column; gap:6px;
     }
@@ -373,7 +364,6 @@
     }
     .chat-list .chat-item .delete-msg:hover { color:#e74c3c; }
 
-    /* Videos – compact */
     .video-grid {
       display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr));
       gap:12px;
@@ -389,7 +379,6 @@
     .video-grid .video-card .video-info h4 { font-size:13px; font-weight:600; }
     .video-grid .video-card .video-info p { font-size:11px; color:#6a7a8a; }
 
-    /* Businesses – compact */
     .business-grid {
       display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr));
       gap:12px;
@@ -456,7 +445,6 @@
     }
     .add-biz-form .submit-biz:hover { box-shadow:0 4px 12px rgba(26,71,42,0.30); }
 
-    /* Modals */
     .modal-overlay {
       display:none; position:fixed; inset:0;
       background:rgba(0,0,0,0.50); backdrop-filter:blur(6px);
@@ -493,7 +481,6 @@
       border-color:#1a472a; background:#fff;
     }
 
-    /* Chat modal */
     .chat-modal .modal-box { max-width:480px; }
     .chat-modal .chat-messages {
       max-height:280px; overflow-y:auto; padding:6px 0;
@@ -535,7 +522,6 @@
     }
     .chat-modal .chat-header-user h4 { font-size:15px; }
 
-    /* Story viewer modal */
     .story-viewer .modal-box { max-width:400px; text-align:center; }
     .story-viewer .story-text {
       font-size:20px; padding:20px 0; line-height:1.6;
@@ -548,7 +534,6 @@
       width:32px; height:32px; border-radius:50%; object-fit:cover;
     }
 
-    /* Developer content */
     .dev-content { padding:8px 0; }
     .dev-content .dev-avatar { font-size:40px; color:#1a472a; text-align:center; }
     .dev-content h3 { font-size:17px; color:#1a472a; margin:6px 0 2px; }
@@ -1230,7 +1215,7 @@ window.deleteLastMessage = async function(userId) {
 };
 
 // ============================================================
-//  OTHER RENDER FUNCTIONS (unchanged but included)
+//  RENDER ONLINE USERS
 // ============================================================
 async function renderOnlineUsers(yearFilter = 'all') {
   currentYearFilter = yearFilter;
@@ -1267,7 +1252,9 @@ async function renderOnlineUsers(yearFilter = 'all') {
   } catch (e) { container.innerHTML = `<div style="padding:12px;text-align:center;color:#6a7a8a;">Error loading users</div>`; }
 }
 
-// ===== CHAT SYSTEM =====
+// ============================================================
+//  CHAT SYSTEM
+// ============================================================
 window.openChat = async function(userId) {
   try {
     const users = await apiCall('/api/users');
@@ -1304,7 +1291,9 @@ async function renderChatMessages(userId) {
   } catch (e) { container.innerHTML = `<div style="text-align:center;padding:16px;color:#6a7a8a;">Error loading messages</div>`; }
 }
 
-// ===== FRIENDS =====
+// ============================================================
+//  FRIENDS (FIXED – proper error handling)
+// ============================================================
 async function renderFriends(search = '') {
   const container = document.getElementById('friendsGrid');
   if (!container) return;
@@ -1313,7 +1302,7 @@ async function renderFriends(search = '') {
     if (search) {
       friends = friends.filter(u => u.username.toLowerCase().includes(search.toLowerCase()));
     }
-    if (friends.length === 0) {
+    if (!friends || friends.length === 0) {
       container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-users"></i><h3>No friends found</h3><p>Add some friends to chat with!</p></div>`;
       return;
     }
@@ -1331,6 +1320,7 @@ async function renderFriends(search = '') {
     container.innerHTML = html;
   } catch (e) {
     container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-exclamation-triangle"></i><h3>Error loading friends</h3><p>${e.message}</p></div>`;
+    console.error('renderFriends error:', e);
   }
 }
 
@@ -1356,22 +1346,11 @@ async function renderPendingRequests() {
     });
     html += `</div>`;
     container.innerHTML = html;
-  } catch (e) { container.innerHTML = ''; }
+  } catch (e) {
+    container.innerHTML = `<div style="padding:6px;color:#6a7a8a;font-size:12px;">Error loading requests</div>`;
+    console.error('renderPendingRequests error:', e);
+  }
 }
-
-window.acceptFriend = async function(userId) {
-  try {
-    await apiCall('/api/friends/accept', { method: 'POST', body: JSON.stringify({ from: userId }) });
-    await refreshAll();
-  } catch (e) { alert('Error accepting friend: ' + e.message); }
-};
-
-window.rejectFriend = async function(userId) {
-  try {
-    await apiCall('/api/friends/reject', { method: 'POST', body: JSON.stringify({ from: userId }) });
-    await refreshAll();
-  } catch (e) { alert('Error rejecting friend: ' + e.message); }
-};
 
 async function renderFindPeople(search = '') {
   const container = document.getElementById('findPeopleContainer');
@@ -1401,8 +1380,25 @@ async function renderFindPeople(search = '') {
     });
     html += `</div>`;
     container.innerHTML = html;
-  } catch (e) { container.innerHTML = `<div style="padding:6px;color:#6a7a8a;font-size:12px;">Error loading users.</div>`; }
+  } catch (e) {
+    container.innerHTML = `<div style="padding:6px;color:#6a7a8a;font-size:12px;">Error loading users.</div>`;
+    console.error('renderFindPeople error:', e);
+  }
 }
+
+window.acceptFriend = async function(userId) {
+  try {
+    await apiCall('/api/friends/accept', { method: 'POST', body: JSON.stringify({ from: userId }) });
+    await refreshAll();
+  } catch (e) { alert('Error accepting friend: ' + e.message); }
+};
+
+window.rejectFriend = async function(userId) {
+  try {
+    await apiCall('/api/friends/reject', { method: 'POST', body: JSON.stringify({ from: userId }) });
+    await refreshAll();
+  } catch (e) { alert('Error rejecting friend: ' + e.message); }
+};
 
 window.addFriend = async function(userId) {
   try {
@@ -1412,7 +1408,9 @@ window.addFriend = async function(userId) {
   } catch (e) { alert('Error: ' + e.message); }
 };
 
-// ===== VIDEOS =====
+// ============================================================
+//  RENDER VIDEOS
+// ============================================================
 async function renderVideos() {
   const container = document.getElementById('videoGrid');
   if (!container) return;
@@ -1443,13 +1441,142 @@ async function renderVideos() {
 }
 
 // ============================================================
-//  CREATE POST LOGIC (unchanged)
+//  CREATE POST LOGIC
 // ============================================================
-// (All the sticker, audio, video, submit logic remains the same as before)
-// I'll keep it short – you already have it in your current dashboard.
+document.getElementById('toggleStickerPicker').addEventListener('click', () => {
+  document.getElementById('stickerPicker').classList.toggle('open');
+});
+document.querySelectorAll('.sticker-emoji').forEach(el => {
+  el.addEventListener('click', function() {
+    selectedSticker = this.dataset.sticker;
+    document.getElementById('postInput').value = `Sticker: ${selectedSticker}`;
+    document.getElementById('stickerPicker').classList.remove('open');
+  });
+});
+
+document.getElementById('audioRecordBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('audioRecordBtn');
+  if (isRecording) {
+    if (mediaRecorder) mediaRecorder.stop();
+    isRecording = false;
+    btn.innerHTML = '<i class="fas fa-microphone"></i> Audio';
+    btn.style.color = '#e74c3c';
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      recordedAudioBlob = blob;
+      recordedAudioDuration = '0:0' + Math.floor(blob.size / 10000);
+      btn.innerHTML = '<i class="fas fa-check-circle"></i> Audio Ready';
+      btn.style.color = '#2ecc71';
+      document.getElementById('postInput').value = '🎙️ Audio message attached';
+    };
+    mediaRecorder.start();
+    isRecording = true;
+    btn.innerHTML = '<i class="fas fa-stop-circle"></i> Stop';
+    btn.style.color = '#e74c3c';
+  } catch (e) { alert('Microphone access denied.'); }
+});
+
+document.getElementById('videoUploadBtn').addEventListener('click', () => {
+  document.getElementById('videoFileInput').click();
+});
+document.getElementById('videoFileInput').addEventListener('change', function() {
+  if (this.files && this.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      uploadedVideoData = e.target.result;
+      document.getElementById('postInput').value = '🎬 Video attached';
+      document.getElementById('videoUploadBtn').innerHTML = '<i class="fas fa-check-circle"></i> Video Ready';
+      document.getElementById('videoUploadBtn').style.color = '#2ecc71';
+    };
+    reader.readAsDataURL(this.files[0]);
+  }
+});
+
+document.getElementById('submitPostBtn').addEventListener('click', async () => {
+  const input = document.getElementById('postInput');
+  let content = input.value.trim();
+  let type = 'text';
+  let stickerType = null;
+  let audioUrl = null;
+  let videoUrl = null;
+
+  if (selectedSticker) { type = 'sticker'; content = selectedSticker; stickerType = selectedSticker; }
+  else if (recordedAudioBlob) {
+    type = 'audio';
+    const reader = new FileReader();
+    audioUrl = await new Promise((resolve) => {
+      reader.onload = e => resolve(e.target.result);
+      reader.readAsDataURL(recordedAudioBlob);
+    });
+  } else if (uploadedVideoData) {
+    type = 'video';
+    videoUrl = uploadedVideoData;
+  }
+
+  if (!content && type === 'text') { alert('Please write something or add media.'); return; }
+
+  try {
+    await apiCall('/api/posts', {
+      method: 'POST',
+      body: JSON.stringify({ content, type, stickerType, audioUrl, videoUrl, audioDuration: recordedAudioDuration })
+    });
+    document.getElementById('postInput').value = '';
+    selectedSticker = null;
+    recordedAudioBlob = null;
+    uploadedVideoData = null;
+    document.getElementById('stickerPicker').classList.remove('open');
+    document.getElementById('audioRecordBtn').innerHTML = '<i class="fas fa-microphone"></i> Audio';
+    document.getElementById('audioRecordBtn').style.color = '';
+    document.getElementById('videoUploadBtn').innerHTML = '<i class="fas fa-film"></i> Video';
+    document.getElementById('videoUploadBtn').style.color = '';
+    document.getElementById('videoFileInput').value = '';
+    await renderPosts();
+    await renderVideos();
+  } catch (e) { alert('Error creating post: ' + e.message); }
+});
 
 // ============================================================
-//  EVENT LISTENERS (simplified – copy from previous working version)
+//  BUSINESS SUBMIT
+// ============================================================
+document.getElementById('submitBizBtn').addEventListener('click', async () => {
+  const name = document.getElementById('bizName').value.trim();
+  const category = document.getElementById('bizCategory').value;
+  const description = document.getElementById('bizDesc').value.trim();
+  const animation = document.getElementById('bizAnimation').value;
+  const fileInput = document.getElementById('bizImage');
+  let image = null;
+  if (fileInput.files && fileInput.files[0]) {
+    const reader = new FileReader();
+    image = await new Promise((resolve) => {
+      reader.onload = e => resolve(e.target.result);
+      reader.readAsDataURL(fileInput.files[0]);
+    });
+  }
+  if (!name || !description) {
+    alert('Please fill in business name and description.');
+    return;
+  }
+  try {
+    await apiCall('/api/businesses', {
+      method: 'POST',
+      body: JSON.stringify({ name, category, description, image, animation })
+    });
+    document.getElementById('bizName').value = '';
+    document.getElementById('bizDesc').value = '';
+    document.getElementById('bizImage').value = '';
+    await renderBusinesses();
+  } catch (e) { alert('Error adding business: ' + e.message); }
+});
+
+// ============================================================
+//  EVENT LISTENERS
 // ============================================================
 function setupEventListeners() {
   // Dropdown
@@ -1460,13 +1587,6 @@ function setupEventListeners() {
   document.addEventListener('click', function() {
     document.getElementById('dropdownMenu').classList.remove('open');
   });
-
-  // Settings, Developer, Chat, Logout, Tabs, Search, etc.
-  // (All listeners from the previous working dashboard – I'll include them in the full file)
-  // For brevity, I'll assume you copy them from the previous version.
-  // They are all present in the previous working dashboard you had.
-
-  // But to keep it fully functional, I'll include the critical ones:
 
   // Settings
   document.getElementById('settingsMenuItem').addEventListener('click', () => {
@@ -1581,138 +1701,6 @@ function setupEventListeners() {
       this.classList.add('active');
       renderOnlineUsers(this.dataset.year);
     });
-  });
-
-  // Sticker, audio, video, submit post (copy from previous)
-  // I'll include them briefly:
-  document.getElementById('toggleStickerPicker').addEventListener('click', () => {
-    document.getElementById('stickerPicker').classList.toggle('open');
-  });
-  document.querySelectorAll('.sticker-emoji').forEach(el => {
-    el.addEventListener('click', function() {
-      selectedSticker = this.dataset.sticker;
-      document.getElementById('postInput').value = `Sticker: ${selectedSticker}`;
-      document.getElementById('stickerPicker').classList.remove('open');
-    });
-  });
-
-  document.getElementById('audioRecordBtn').addEventListener('click', async () => {
-    const btn = document.getElementById('audioRecordBtn');
-    if (isRecording) {
-      if (mediaRecorder) mediaRecorder.stop();
-      isRecording = false;
-      btn.innerHTML = '<i class="fas fa-microphone"></i> Audio';
-      btn.style.color = '#e74c3c';
-      return;
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
-      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(audioChunks, { type: 'audio/webm' });
-        recordedAudioBlob = blob;
-        recordedAudioDuration = '0:0' + Math.floor(blob.size / 10000);
-        btn.innerHTML = '<i class="fas fa-check-circle"></i> Audio Ready';
-        btn.style.color = '#2ecc71';
-        document.getElementById('postInput').value = '🎙️ Audio message attached';
-      };
-      mediaRecorder.start();
-      isRecording = true;
-      btn.innerHTML = '<i class="fas fa-stop-circle"></i> Stop';
-      btn.style.color = '#e74c3c';
-    } catch (e) { alert('Microphone access denied.'); }
-  });
-
-  document.getElementById('videoUploadBtn').addEventListener('click', () => {
-    document.getElementById('videoFileInput').click();
-  });
-  document.getElementById('videoFileInput').addEventListener('change', function() {
-    if (this.files && this.files[0]) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        uploadedVideoData = e.target.result;
-        document.getElementById('postInput').value = '🎬 Video attached';
-        document.getElementById('videoUploadBtn').innerHTML = '<i class="fas fa-check-circle"></i> Video Ready';
-        document.getElementById('videoUploadBtn').style.color = '#2ecc71';
-      };
-      reader.readAsDataURL(this.files[0]);
-    }
-  });
-
-  document.getElementById('submitPostBtn').addEventListener('click', async () => {
-    const input = document.getElementById('postInput');
-    let content = input.value.trim();
-    let type = 'text';
-    let stickerType = null;
-    let audioUrl = null;
-    let videoUrl = null;
-
-    if (selectedSticker) { type = 'sticker'; content = selectedSticker; stickerType = selectedSticker; }
-    else if (recordedAudioBlob) {
-      type = 'audio';
-      const reader = new FileReader();
-      audioUrl = await new Promise((resolve) => {
-        reader.onload = e => resolve(e.target.result);
-        reader.readAsDataURL(recordedAudioBlob);
-      });
-    } else if (uploadedVideoData) {
-      type = 'video';
-      videoUrl = uploadedVideoData;
-    }
-
-    if (!content && type === 'text') { alert('Please write something or add media.'); return; }
-
-    try {
-      await apiCall('/api/posts', {
-        method: 'POST',
-        body: JSON.stringify({ content, type, stickerType, audioUrl, videoUrl, audioDuration: recordedAudioDuration })
-      });
-      document.getElementById('postInput').value = '';
-      selectedSticker = null;
-      recordedAudioBlob = null;
-      uploadedVideoData = null;
-      document.getElementById('stickerPicker').classList.remove('open');
-      document.getElementById('audioRecordBtn').innerHTML = '<i class="fas fa-microphone"></i> Audio';
-      document.getElementById('audioRecordBtn').style.color = '';
-      document.getElementById('videoUploadBtn').innerHTML = '<i class="fas fa-film"></i> Video';
-      document.getElementById('videoUploadBtn').style.color = '';
-      document.getElementById('videoFileInput').value = '';
-      await renderPosts();
-      await renderVideos();
-    } catch (e) { alert('Error creating post: ' + e.message); }
-  });
-
-  // Business submit
-  document.getElementById('submitBizBtn').addEventListener('click', async () => {
-    const name = document.getElementById('bizName').value.trim();
-    const category = document.getElementById('bizCategory').value;
-    const description = document.getElementById('bizDesc').value.trim();
-    const animation = document.getElementById('bizAnimation').value;
-    const fileInput = document.getElementById('bizImage');
-    let image = null;
-    if (fileInput.files && fileInput.files[0]) {
-      const reader = new FileReader();
-      image = await new Promise((resolve) => {
-        reader.onload = e => resolve(e.target.result);
-        reader.readAsDataURL(fileInput.files[0]);
-      });
-    }
-    if (!name || !description) {
-      alert('Please fill in business name and description.');
-      return;
-    }
-    try {
-      await apiCall('/api/businesses', {
-        method: 'POST',
-        body: JSON.stringify({ name, category, description, image, animation })
-      });
-      document.getElementById('bizName').value = '';
-      document.getElementById('bizDesc').value = '';
-      document.getElementById('bizImage').value = '';
-      await renderBusinesses();
-    } catch (e) { alert('Error adding business: ' + e.message); }
   });
 }
 
