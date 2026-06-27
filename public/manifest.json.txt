@@ -1,0 +1,27 @@
+{
+  "background_color": "#171d53",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "mzuni-hub",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "mzuni-vibes-hub",
+  "start_url": "/",
+  "theme_color": "#398661",
+  "icons": [
+    {
+      "src": "https://mzuni-chills.onrender.com/favicon.ico",
+      "type": "image/x-icon",
+      "isSquare": false,
+      "isPng": false,
+      "isWebp": false,
+      "isJpg": false,
+      "width": 0,
+      "is512x512": false,
+      "is256x256": false,
+      "is192x192": false
+    }
+  ],
+  "id": "mzuzu university vibes",
+  "description": "Application for interactions and entertainments"
+}
