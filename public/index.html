@@ -134,5 +134,10 @@
 
   if (sessionStorage.getItem('token')) window.location.href = '/dashboard.html';
 </script>
+  <script>
+  if (typeof navigator.serviceWorker !== 'undefined') {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
 </body>
 </html>
