@@ -543,6 +543,31 @@
       .friends-grid { grid-template-columns:1fr 1fr; }
       .business-grid { grid-template-columns:1fr; }
     }
+
+    /* Error overlay */
+    .error-overlay {
+      text-align:center;
+      padding:60px 20px;
+      max-width:600px;
+      margin:80px auto;
+      background:#fff;
+      border-radius:24px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.08);
+    }
+    .error-overlay i { font-size:64px; color:#e74c3c; margin-bottom:20px; }
+    .error-overlay h2 { font-size:24px; color:#1a1a2e; margin-bottom:8px; }
+    .error-overlay p { color:#6a7a8a; margin-bottom:20px; }
+    .error-overlay .btn {
+      padding:10px 24px;
+      background:#1a472a;
+      color:#fff;
+      border:none;
+      border-radius:30px;
+      font-size:16px;
+      font-weight:600;
+      cursor:pointer;
+    }
+    .error-overlay .btn:hover { background:#2d7d3a; }
   </style>
 </head>
 <body>
@@ -760,11 +785,12 @@
 
 <script>
 // ============================================================
-//  API HELPER
+//  API HELPER (with debug logging)
 // ============================================================
 const API_BASE = '';
 async function apiCall(endpoint, options = {}) {
   const token = sessionStorage.getItem('token');
+  console.log(`📡 ${endpoint} – token:`, token ? 'present' : 'missing');
   const headers = {
     'Content-Type': 'application/json',
     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
@@ -772,7 +798,11 @@ async function apiCall(endpoint, options = {}) {
   const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
   if (!res.ok) {
     let errMsg = 'Request failed';
-    try { const errData = await res.json(); errMsg = errData.error || errMsg; } catch(_) {}
+    try {
+      const errData = await res.json();
+      errMsg = errData.error || errMsg;
+    } catch(_) {}
+    console.error(`❌ ${endpoint} failed (${res.status}):`, errMsg);
     throw new Error(errMsg);
   }
   const text = await res.text();
@@ -809,19 +839,25 @@ let currentChatTarget = null;
 let currentYearFilter = 'all';
 
 // ============================================================
-//  DASHBOARD INIT – FIXED: validate token first, then render
+//  DASHBOARD INIT – ONLY REDIRECT ON 401
 // ============================================================
 async function initDashboard() {
   const token = sessionStorage.getItem('token');
   const userData = sessionStorage.getItem('user');
+  console.log('🔐 Dashboard init:', { token: !!token, userData: !!userData });
+
   if (!token || !userData) {
+    console.log('❌ Missing token or user – redirecting');
     window.location.href = '/index.html';
     return;
   }
+
   try {
-    // Validate token by fetching users – if fails, it will throw
+    // Validate token by fetching users
     await apiCall('/api/users');
     currentUser = JSON.parse(userData);
+    console.log('✅ Dashboard init successful for', currentUser.username);
+
     // Update UI
     document.getElementById('dashAvatar').src = currentUser.profilePic || getDefaultAvatar();
     document.getElementById('postUserAvatar').src = currentUser.profilePic || getDefaultAvatar();
@@ -830,13 +866,44 @@ async function initDashboard() {
     await refreshAll();
     setupEventListeners();
     setInterval(refreshAll, 30000);
-  } catch (e) {
-    console.error('Dashboard init error:', e);
-    // Token invalid or network error – redirect to login
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
-    window.location.href = '/index.html';
+  } catch (error) {
+    console.error('❌ Dashboard init error:', error);
+    // Only redirect on 401 (Unauthorized) or "Invalid token" / "Unauthorized"
+    const msg = error.message || '';
+    if (msg.includes('Unauthorized') || msg.includes('Invalid token') || msg.includes('401')) {
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+      window.location.href = '/index.html';
+    } else {
+      // Show error on page (network error, 500, etc.) – keep user on dashboard
+      showError(error.message);
+    }
   }
+}
+
+function showError(message) {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="error-overlay">
+      <i class="fas fa-exclamation-triangle"></i>
+      <h2>⚠️ Something went wrong</h2>
+      <p>${message}</p>
+      <button class="btn" onclick="location.reload()">
+        <i class="fas fa-sync"></i> Retry
+      </button>
+      <br><br>
+      <button class="btn" style="background:#666;" onclick="logoutUser()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  `;
+}
+
+async function logoutUser() {
+  try { await apiCall('/api/logout', { method: 'POST' }); } catch(_) {}
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('user');
+  window.location.href = '/index.html';
 }
 
 async function refreshAll() {
