@@ -20,7 +20,6 @@
     ::-webkit-scrollbar-track { background:#e8ecf1; }
     ::-webkit-scrollbar-thumb { background:#1a472a; border-radius:8px; }
 
-    /* Header */
     .dash-header {
       background: linear-gradient(135deg, #0f2a1a 0%, #1a472a 60%, #2d7d3a 100%);
       padding: 12px 28px;
@@ -67,7 +66,6 @@
     .dropdown-menu .menu-item.logout { color:#c0392b; }
     .dropdown-menu .menu-item.logout i { color:#c0392b; }
 
-    /* Tabs */
     .dash-tabs {
       display:flex; background:#fff; border-bottom:1px solid #e8ecf1;
       padding:0 20px; position:sticky; top:68px; z-index:90;
@@ -83,7 +81,6 @@
     .dash-tabs .tab-btn.active { color:#1a472a; border-bottom-color:#1a472a; background:transparent; }
     .dash-tabs .tab-btn i { font-size:16px; }
 
-    /* Stories */
     .stories-bar {
       background:#fff; padding:16px 20px;
       margin:16px 20px 0; border-radius:16px;
@@ -112,7 +109,6 @@
     }
     .stories-bar .story-item.add-story:hover { background:#e4eaf0; }
 
-    /* Main layout */
     .dash-body {
       display:flex; padding:16px 20px 100px; gap:24px;
       max-width:1400px; margin:0 auto;
@@ -170,12 +166,10 @@
       width:8px; height:8px; background:#b0c0d0; border-radius:50%; flex-shrink:0;
     }
 
-    /* Tab panels */
     .tab-panel { display:none; animation:fadeUp 0.3s ease; }
     .tab-panel.active { display:block; }
     @keyframes fadeUp { 0%{ opacity:0; transform:translateY(18px); } 100%{ opacity:1; transform:translateY(0); } }
 
-    /* Create post */
     .create-post-box {
       background:#fff; border-radius:16px; padding:16px 20px;
       margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
@@ -222,7 +216,6 @@
     }
     .sticker-picker .sticker-emoji:hover { transform:scale(1.2); border-color:#1a472a; }
 
-    /* Post card */
     .post-card {
       background:#fff; border-radius:16px; padding:16px 20px 12px;
       margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
@@ -294,7 +287,6 @@
     }
     .post-card .post-comments .comment-input button:hover { background:#2d7d3a; }
 
-    /* Friends grid */
     .friends-grid {
       display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
       gap:16px;
@@ -322,7 +314,6 @@
     }
     .search-box input:focus { border-color:#1a472a; }
 
-    /* Chat list */
     .chat-list {
       display:flex; flex-direction:column; gap:8px;
     }
@@ -344,7 +335,6 @@
     }
     .chat-list .chat-item .ctime { font-size:11px; color:#8a9aaa; }
 
-    /* Videos */
     .video-grid {
       display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr));
       gap:16px;
@@ -360,7 +350,6 @@
     .video-grid .video-card .video-info h4 { font-size:14px; font-weight:600; }
     .video-grid .video-card .video-info p { font-size:12px; color:#6a7a8a; }
 
-    /* Businesses */
     .business-grid {
       display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr));
       gap:16px;
@@ -420,7 +409,6 @@
     }
     .add-biz-form .submit-biz:hover { box-shadow:0 4px 12px rgba(26,71,42,0.30); }
 
-    /* Modals */
     .modal-overlay {
       display:none; position:fixed; inset:0;
       background:rgba(0,0,0,0.50); backdrop-filter:blur(6px);
@@ -457,7 +445,6 @@
       border-color:#1a472a; background:#fff;
     }
 
-    /* Chat modal */
     .chat-modal .modal-box { max-width:480px; }
     .chat-modal .chat-messages {
       max-height:320px; overflow-y:auto; padding:8px 0;
@@ -499,7 +486,6 @@
     }
     .chat-modal .chat-header-user h4 { font-size:16px; }
 
-    /* Developer content */
     .dev-content { padding:12px 0; }
     .dev-content .dev-avatar { font-size:48px; color:#1a472a; text-align:center; }
     .dev-content h3 { font-size:18px; color:#1a472a; margin:8px 0 4px; }
@@ -544,7 +530,6 @@
       .business-grid { grid-template-columns:1fr; }
     }
 
-    /* Error overlay */
     .error-overlay {
       text-align:center;
       padding:60px 20px;
@@ -785,12 +770,11 @@
 
 <script>
 // ============================================================
-//  API HELPER (with debug logging)
+//  API HELPER
 // ============================================================
 const API_BASE = '';
 async function apiCall(endpoint, options = {}) {
   const token = sessionStorage.getItem('token');
-  console.log(`📡 ${endpoint} – token:`, token ? 'present' : 'missing');
   const headers = {
     'Content-Type': 'application/json',
     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
@@ -802,7 +786,6 @@ async function apiCall(endpoint, options = {}) {
       const errData = await res.json();
       errMsg = errData.error || errMsg;
     } catch(_) {}
-    console.error(`❌ ${endpoint} failed (${res.status}):`, errMsg);
     throw new Error(errMsg);
   }
   const text = await res.text();
@@ -837,64 +820,51 @@ function getYearEmoji(year) {
 let currentUser = null;
 let currentChatTarget = null;
 let currentYearFilter = 'all';
+let selectedSticker = null;
+let recordedAudioBlob = null;
+let recordedAudioDuration = '0:05';
+let uploadedVideoData = null;
+let mediaRecorder = null, audioChunks = [], isRecording = false;
 
 // ============================================================
-//  DASHBOARD INIT – ONLY REDIRECT ON 401
+//  DASHBOARD INIT
 // ============================================================
 async function initDashboard() {
   const token = sessionStorage.getItem('token');
   const userData = sessionStorage.getItem('user');
-  console.log('🔐 Dashboard init:', { token: !!token, userData: !!userData });
-
   if (!token || !userData) {
-    console.log('❌ Missing token or user – redirecting');
     window.location.href = '/index.html';
     return;
   }
-
   try {
-    // Validate token by fetching users
-    await apiCall('/api/users');
+    await apiCall('/api/users'); // validate token
     currentUser = JSON.parse(userData);
-    console.log('✅ Dashboard init successful for', currentUser.username);
-
-    // Update UI
     document.getElementById('dashAvatar').src = currentUser.profilePic || getDefaultAvatar();
     document.getElementById('postUserAvatar').src = currentUser.profilePic || getDefaultAvatar();
-
-    // Load all data
     await refreshAll();
     setupEventListeners();
     setInterval(refreshAll, 30000);
   } catch (error) {
-    console.error('❌ Dashboard init error:', error);
-    // Only redirect on 401 (Unauthorized) or "Invalid token" / "Unauthorized"
-    const msg = error.message || '';
-    if (msg.includes('Unauthorized') || msg.includes('Invalid token') || msg.includes('401')) {
+    console.error('Dashboard init error:', error);
+    if (error.message.includes('Unauthorized') || error.message.includes('Invalid token')) {
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('user');
       window.location.href = '/index.html';
     } else {
-      // Show error on page (network error, 500, etc.) – keep user on dashboard
       showError(error.message);
     }
   }
 }
 
 function showError(message) {
-  const app = document.getElementById('app');
-  app.innerHTML = `
+  document.getElementById('app').innerHTML = `
     <div class="error-overlay">
       <i class="fas fa-exclamation-triangle"></i>
-      <h2>⚠️ Something went wrong</h2>
+      <h2>Something went wrong</h2>
       <p>${message}</p>
-      <button class="btn" onclick="location.reload()">
-        <i class="fas fa-sync"></i> Retry
-      </button>
+      <button class="btn" onclick="location.reload()"><i class="fas fa-sync"></i> Retry</button>
       <br><br>
-      <button class="btn" style="background:#666;" onclick="logoutUser()">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </button>
+      <button class="btn" style="background:#666;" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
   `;
 }
@@ -919,13 +889,11 @@ async function refreshAll() {
       renderPendingRequests(),
       renderFindPeople()
     ]);
-  } catch (e) {
-    console.error('Refresh error:', e);
-  }
+  } catch (e) { console.error('Refresh error:', e); }
 }
 
 // ============================================================
-//  RENDER POSTS
+//  RENDER FUNCTIONS
 // ============================================================
 async function renderPosts(containerId = 'postsContainer') {
   const container = document.getElementById(containerId);
@@ -1020,106 +988,6 @@ window.toggleComments = function(postId) {
 window.playAudio = function(postId) { alert('🔊 Playing audio (simulated)'); };
 
 // ============================================================
-//  CREATE POST (with audio/video/sticker)
-// ============================================================
-let selectedSticker = null;
-let recordedAudioBlob = null;
-let recordedAudioDuration = '0:05';
-let uploadedVideoData = null;
-
-document.getElementById('toggleStickerPicker').addEventListener('click', () => {
-  document.getElementById('stickerPicker').classList.toggle('open');
-});
-document.querySelectorAll('.sticker-emoji').forEach(el => {
-  el.addEventListener('click', function() {
-    selectedSticker = this.dataset.sticker;
-    document.getElementById('postInput').value = `Sticker: ${selectedSticker}`;
-    document.getElementById('stickerPicker').classList.remove('open');
-  });
-});
-
-let mediaRecorder = null, audioChunks = [], isRecording = false;
-document.getElementById('audioRecordBtn').addEventListener('click', async () => {
-  const btn = document.getElementById('audioRecordBtn');
-  if (isRecording) { if (mediaRecorder) mediaRecorder.stop(); isRecording = false; btn.innerHTML = '<i class="fas fa-microphone"></i> Audio'; btn.style.color = '#e74c3c'; return; }
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder = new MediaRecorder(stream);
-    audioChunks = [];
-    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(audioChunks, { type: 'audio/webm' });
-      recordedAudioBlob = blob;
-      recordedAudioDuration = '0:0' + Math.floor(blob.size / 10000);
-      btn.innerHTML = '<i class="fas fa-check-circle"></i> Audio Ready';
-      btn.style.color = '#2ecc71';
-      document.getElementById('postInput').value = '🎙️ Audio message attached';
-    };
-    mediaRecorder.start();
-    isRecording = true;
-    btn.innerHTML = '<i class="fas fa-stop-circle"></i> Stop';
-    btn.style.color = '#e74c3c';
-  } catch (e) { alert('Microphone access denied.'); }
-});
-
-document.getElementById('videoUploadBtn').addEventListener('click', () => document.getElementById('videoFileInput').click());
-document.getElementById('videoFileInput').addEventListener('change', function() {
-  if (this.files && this.files[0]) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      uploadedVideoData = e.target.result;
-      document.getElementById('postInput').value = '🎬 Video attached';
-      document.getElementById('videoUploadBtn').innerHTML = '<i class="fas fa-check-circle"></i> Video Ready';
-      document.getElementById('videoUploadBtn').style.color = '#2ecc71';
-    };
-    reader.readAsDataURL(this.files[0]);
-  }
-});
-
-document.getElementById('submitPostBtn').addEventListener('click', async () => {
-  const input = document.getElementById('postInput');
-  let content = input.value.trim();
-  let type = 'text';
-  let stickerType = null;
-  let audioUrl = null;
-  let videoUrl = null;
-
-  if (selectedSticker) { type = 'sticker'; content = selectedSticker; stickerType = selectedSticker; }
-  else if (recordedAudioBlob) {
-    type = 'audio';
-    const reader = new FileReader();
-    audioUrl = await new Promise((resolve) => {
-      reader.onload = e => resolve(e.target.result);
-      reader.readAsDataURL(recordedAudioBlob);
-    });
-  } else if (uploadedVideoData) {
-    type = 'video';
-    videoUrl = uploadedVideoData;
-  }
-
-  if (!content && type === 'text') { alert('Please write something or add media.'); return; }
-
-  try {
-    await apiCall('/api/posts', {
-      method: 'POST',
-      body: JSON.stringify({ content, type, stickerType, audioUrl, videoUrl, audioDuration: recordedAudioDuration })
-    });
-    document.getElementById('postInput').value = '';
-    selectedSticker = null;
-    recordedAudioBlob = null;
-    uploadedVideoData = null;
-    document.getElementById('stickerPicker').classList.remove('open');
-    document.getElementById('audioRecordBtn').innerHTML = '<i class="fas fa-microphone"></i> Audio';
-    document.getElementById('audioRecordBtn').style.color = '';
-    document.getElementById('videoUploadBtn').innerHTML = '<i class="fas fa-film"></i> Video';
-    document.getElementById('videoUploadBtn').style.color = '';
-    document.getElementById('videoFileInput').value = '';
-    await renderPosts();
-    await renderVideos();
-  } catch (e) { alert('Error creating post: ' + e.message); }
-});
-
-// ============================================================
 //  RENDER ONLINE USERS
 // ============================================================
 async function renderOnlineUsers(yearFilter = 'all') {
@@ -1156,14 +1024,6 @@ async function renderOnlineUsers(yearFilter = 'all') {
     container.innerHTML = html;
   } catch (e) { container.innerHTML = `<div style="padding:16px;text-align:center;color:#6a7a8a;">Error loading users</div>`; }
 }
-
-document.querySelectorAll('.year-tab').forEach(tab => {
-  tab.addEventListener('click', function() {
-    document.querySelectorAll('.year-tab').forEach(t => t.classList.remove('active'));
-    this.classList.add('active');
-    renderOnlineUsers(this.dataset.year);
-  });
-});
 
 // ============================================================
 //  CHAT SYSTEM
@@ -1238,22 +1098,6 @@ async function renderChatMessages(userId) {
     container.scrollTop = container.scrollHeight;
   } catch (e) { container.innerHTML = `<div style="text-align:center;padding:24px;color:#6a7a8a;">Error loading messages</div>`; }
 }
-
-document.getElementById('sendChatBtn').addEventListener('click', async () => {
-  const input = document.getElementById('chatInput');
-  const text = input.value.trim();
-  if (!text || !currentChatTarget) return;
-  try {
-    await apiCall('/api/messages', { method: 'POST', body: JSON.stringify({ to: currentChatTarget._id, content: text }) });
-    input.value = '';
-    await renderChatMessages(currentChatTarget._id);
-    await renderChatList();
-  } catch (e) { alert('Error sending message: ' + e.message); }
-});
-document.getElementById('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('sendChatBtn').click(); });
-
-document.getElementById('closeChatModal').addEventListener('click', () => document.getElementById('chatModal').classList.remove('open'));
-document.getElementById('chatModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
 
 // ============================================================
 //  FRIENDS SYSTEM
@@ -1464,133 +1308,262 @@ async function renderStories() {
 }
 
 // ============================================================
-//  BUSINESS CREATION
+//  EVENT LISTENERS (COMPLETE)
 // ============================================================
-document.getElementById('submitBizBtn').addEventListener('click', async () => {
-  const name = document.getElementById('bizName').value.trim();
-  const category = document.getElementById('bizCategory').value;
-  const description = document.getElementById('bizDesc').value.trim();
-  const animation = document.getElementById('bizAnimation').value;
-  const fileInput = document.getElementById('bizImage');
-  let image = null;
-  if (fileInput.files && fileInput.files[0]) {
-    const reader = new FileReader();
-    image = await new Promise((resolve) => {
-      reader.onload = e => resolve(e.target.result);
-      reader.readAsDataURL(fileInput.files[0]);
-    });
-  }
-  if (!name || !description) {
-    alert('Please fill in business name and description.');
-    return;
-  }
-  try {
-    await apiCall('/api/businesses', {
-      method: 'POST',
-      body: JSON.stringify({ name, category, description, image, animation })
-    });
-    document.getElementById('bizName').value = '';
-    document.getElementById('bizDesc').value = '';
-    document.getElementById('bizImage').value = '';
-    await renderBusinesses();
-  } catch (e) { alert('Error adding business: ' + e.message); }
-});
-
-// ============================================================
-//  PROFILE SETTINGS
-// ============================================================
-document.getElementById('settingsMenuItem').addEventListener('click', () => {
-  document.getElementById('profileUsername').value = currentUser.username || '';
-  document.getElementById('profileBio').value = currentUser.bio || '';
-  document.getElementById('profileLocation').value = currentUser.location || '';
-  document.getElementById('profileInterests').value = currentUser.interests || '';
-  document.getElementById('settingsModal').classList.add('open');
-  document.getElementById('dropdownMenu').classList.remove('open');
-});
-
-document.getElementById('closeSettingsModal').addEventListener('click', () => document.getElementById('settingsModal').classList.remove('open'));
-document.getElementById('settingsModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
-
-document.getElementById('saveProfileBtn').addEventListener('click', async () => {
-  const username = document.getElementById('profileUsername').value.trim() || currentUser.username;
-  const bio = document.getElementById('profileBio').value.trim();
-  const location = document.getElementById('profileLocation').value.trim();
-  const interests = document.getElementById('profileInterests').value.trim();
-  try {
-    const updated = await apiCall('/api/profile', {
-      method: 'PUT',
-      body: JSON.stringify({ username, bio, location, interests })
-    });
-    currentUser = { ...currentUser, ...updated };
-    sessionStorage.setItem('user', JSON.stringify(currentUser));
-    document.getElementById('dashAvatar').src = currentUser.profilePic || getDefaultAvatar();
-    document.getElementById('settingsModal').classList.remove('open');
-    await refreshAll();
-  } catch (e) { alert('Error updating profile: ' + e.message); }
-});
-
-// ============================================================
-//  DEVELOPER MODAL
-// ============================================================
-document.getElementById('developerMenuItem').addEventListener('click', () => {
-  document.getElementById('developerModal').classList.add('open');
-  document.getElementById('dropdownMenu').classList.remove('open');
-});
-document.getElementById('closeDeveloperModal').addEventListener('click', () => document.getElementById('developerModal').classList.remove('open'));
-document.getElementById('developerModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
-
-// ============================================================
-//  DROPDOWN TOGGLE
-// ============================================================
-document.getElementById('profileDropdown').addEventListener('click', function(e) {
-  e.stopPropagation();
-  document.getElementById('dropdownMenu').classList.toggle('open');
-});
-document.addEventListener('click', function() {
-  document.getElementById('dropdownMenu').classList.remove('open');
-});
-
-// ============================================================
-//  TABS NAVIGATION
-// ============================================================
-document.querySelectorAll('.tab-btn, .mnav-item').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const tab = this.dataset.tab;
-    document.querySelectorAll('.tab-btn, .mnav-item').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll(`.tab-btn[data-tab="${tab}"], .mnav-item[data-tab="${tab}"]`).forEach(b => b.classList.add('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    const panel = document.getElementById(`tab-${tab}`);
-    if (panel) panel.classList.add('active');
-    // Refresh content
-    if (tab === 'friends') {
-      renderFriends(document.getElementById('friendSearch').value);
-      renderFindPeople(document.getElementById('friendSearch').value);
-    }
-    if (tab === 'chats') renderChatList();
-    if (tab === 'videos') renderVideos();
-    if (tab === 'businesses') renderBusinesses();
+function setupEventListeners() {
+  // Dropdown
+  document.getElementById('profileDropdown').addEventListener('click', function(e) {
+    e.stopPropagation();
+    document.getElementById('dropdownMenu').classList.toggle('open');
   });
-});
+  document.addEventListener('click', function() {
+    document.getElementById('dropdownMenu').classList.remove('open');
+  });
 
-// Friend search
-document.getElementById('friendSearch').addEventListener('input', function() {
-  const val = this.value;
-  renderFriends(val);
-  renderFindPeople(val);
-});
+  // Settings
+  document.getElementById('settingsMenuItem').addEventListener('click', () => {
+    document.getElementById('profileUsername').value = currentUser.username || '';
+    document.getElementById('profileBio').value = currentUser.bio || '';
+    document.getElementById('profileLocation').value = currentUser.location || '';
+    document.getElementById('profileInterests').value = currentUser.interests || '';
+    document.getElementById('settingsModal').classList.add('open');
+    document.getElementById('dropdownMenu').classList.remove('open');
+  });
+  document.getElementById('closeSettingsModal').addEventListener('click', () => {
+    document.getElementById('settingsModal').classList.remove('open');
+  });
+  document.getElementById('settingsModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+  document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+    const username = document.getElementById('profileUsername').value.trim() || currentUser.username;
+    const bio = document.getElementById('profileBio').value.trim();
+    const location = document.getElementById('profileLocation').value.trim();
+    const interests = document.getElementById('profileInterests').value.trim();
+    try {
+      const updated = await apiCall('/api/profile', { method: 'PUT', body: JSON.stringify({ username, bio, location, interests }) });
+      currentUser = { ...currentUser, ...updated };
+      sessionStorage.setItem('user', JSON.stringify(currentUser));
+      document.getElementById('dashAvatar').src = currentUser.profilePic || getDefaultAvatar();
+      document.getElementById('settingsModal').classList.remove('open');
+      await refreshAll();
+    } catch (e) { alert('Error updating profile: ' + e.message); }
+  });
+
+  // Developer
+  document.getElementById('developerMenuItem').addEventListener('click', () => {
+    document.getElementById('developerModal').classList.add('open');
+    document.getElementById('dropdownMenu').classList.remove('open');
+  });
+  document.getElementById('closeDeveloperModal').addEventListener('click', () => {
+    document.getElementById('developerModal').classList.remove('open');
+  });
+  document.getElementById('developerModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+
+  // Chat modal
+  document.getElementById('closeChatModal').addEventListener('click', () => {
+    document.getElementById('chatModal').classList.remove('open');
+  });
+  document.getElementById('chatModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+  document.getElementById('sendChatBtn').addEventListener('click', async () => {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text || !currentChatTarget) return;
+    try {
+      await apiCall('/api/messages', { method: 'POST', body: JSON.stringify({ to: currentChatTarget._id, content: text }) });
+      input.value = '';
+      await renderChatMessages(currentChatTarget._id);
+      await renderChatList();
+    } catch (e) { alert('Error sending message: ' + e.message); }
+  });
+  document.getElementById('chatInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('sendChatBtn').click();
+  });
+
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    try { await apiCall('/api/logout', { method: 'POST' }); } catch(_) {}
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    window.location.href = '/index.html';
+  });
+
+  // Tabs
+  document.querySelectorAll('.tab-btn, .mnav-item').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const tab = this.dataset.tab;
+      document.querySelectorAll('.tab-btn, .mnav-item').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll(`.tab-btn[data-tab="${tab}"], .mnav-item[data-tab="${tab}"]`).forEach(b => b.classList.add('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      const panel = document.getElementById(`tab-${tab}`);
+      if (panel) panel.classList.add('active');
+      if (tab === 'friends') {
+        renderFriends(document.getElementById('friendSearch').value);
+        renderFindPeople(document.getElementById('friendSearch').value);
+      }
+      if (tab === 'chats') renderChatList();
+      if (tab === 'videos') renderVideos();
+      if (tab === 'businesses') renderBusinesses();
+    });
+  });
+
+  // Friend search
+  document.getElementById('friendSearch').addEventListener('input', function() {
+    const val = this.value;
+    renderFriends(val);
+    renderFindPeople(val);
+  });
+
+  // Sticker picker
+  document.getElementById('toggleStickerPicker').addEventListener('click', () => {
+    document.getElementById('stickerPicker').classList.toggle('open');
+  });
+  document.querySelectorAll('.sticker-emoji').forEach(el => {
+    el.addEventListener('click', function() {
+      selectedSticker = this.dataset.sticker;
+      document.getElementById('postInput').value = `Sticker: ${selectedSticker}`;
+      document.getElementById('stickerPicker').classList.remove('open');
+    });
+  });
+
+  // Audio record
+  document.getElementById('audioRecordBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('audioRecordBtn');
+    if (isRecording) {
+      if (mediaRecorder) mediaRecorder.stop();
+      isRecording = false;
+      btn.innerHTML = '<i class="fas fa-microphone"></i> Audio';
+      btn.style.color = '#e74c3c';
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+        recordedAudioBlob = blob;
+        recordedAudioDuration = '0:0' + Math.floor(blob.size / 10000);
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> Audio Ready';
+        btn.style.color = '#2ecc71';
+        document.getElementById('postInput').value = '🎙️ Audio message attached';
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      btn.innerHTML = '<i class="fas fa-stop-circle"></i> Stop';
+      btn.style.color = '#e74c3c';
+    } catch (e) { alert('Microphone access denied.'); }
+  });
+
+  // Video upload
+  document.getElementById('videoUploadBtn').addEventListener('click', () => {
+    document.getElementById('videoFileInput').click();
+  });
+  document.getElementById('videoFileInput').addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedVideoData = e.target.result;
+        document.getElementById('postInput').value = '🎬 Video attached';
+        document.getElementById('videoUploadBtn').innerHTML = '<i class="fas fa-check-circle"></i> Video Ready';
+        document.getElementById('videoUploadBtn').style.color = '#2ecc71';
+      };
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+
+  // Submit post
+  document.getElementById('submitPostBtn').addEventListener('click', async () => {
+    const input = document.getElementById('postInput');
+    let content = input.value.trim();
+    let type = 'text';
+    let stickerType = null;
+    let audioUrl = null;
+    let videoUrl = null;
+
+    if (selectedSticker) { type = 'sticker'; content = selectedSticker; stickerType = selectedSticker; }
+    else if (recordedAudioBlob) {
+      type = 'audio';
+      const reader = new FileReader();
+      audioUrl = await new Promise((resolve) => {
+        reader.onload = e => resolve(e.target.result);
+        reader.readAsDataURL(recordedAudioBlob);
+      });
+    } else if (uploadedVideoData) {
+      type = 'video';
+      videoUrl = uploadedVideoData;
+    }
+
+    if (!content && type === 'text') { alert('Please write something or add media.'); return; }
+
+    try {
+      await apiCall('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify({ content, type, stickerType, audioUrl, videoUrl, audioDuration: recordedAudioDuration })
+      });
+      document.getElementById('postInput').value = '';
+      selectedSticker = null;
+      recordedAudioBlob = null;
+      uploadedVideoData = null;
+      document.getElementById('stickerPicker').classList.remove('open');
+      document.getElementById('audioRecordBtn').innerHTML = '<i class="fas fa-microphone"></i> Audio';
+      document.getElementById('audioRecordBtn').style.color = '';
+      document.getElementById('videoUploadBtn').innerHTML = '<i class="fas fa-film"></i> Video';
+      document.getElementById('videoUploadBtn').style.color = '';
+      document.getElementById('videoFileInput').value = '';
+      await renderPosts();
+      await renderVideos();
+    } catch (e) { alert('Error creating post: ' + e.message); }
+  });
+
+  // Business submit
+  document.getElementById('submitBizBtn').addEventListener('click', async () => {
+    const name = document.getElementById('bizName').value.trim();
+    const category = document.getElementById('bizCategory').value;
+    const description = document.getElementById('bizDesc').value.trim();
+    const animation = document.getElementById('bizAnimation').value;
+    const fileInput = document.getElementById('bizImage');
+    let image = null;
+    if (fileInput.files && fileInput.files[0]) {
+      const reader = new FileReader();
+      image = await new Promise((resolve) => {
+        reader.onload = e => resolve(e.target.result);
+        reader.readAsDataURL(fileInput.files[0]);
+      });
+    }
+    if (!name || !description) {
+      alert('Please fill in business name and description.');
+      return;
+    }
+    try {
+      await apiCall('/api/businesses', {
+        method: 'POST',
+        body: JSON.stringify({ name, category, description, image, animation })
+      });
+      document.getElementById('bizName').value = '';
+      document.getElementById('bizDesc').value = '';
+      document.getElementById('bizImage').value = '';
+      await renderBusinesses();
+    } catch (e) { alert('Error adding business: ' + e.message); }
+  });
+
+  // Year tabs
+  document.querySelectorAll('.year-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.year-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      renderOnlineUsers(this.dataset.year);
+    });
+  });
+}
 
 // ============================================================
-//  LOGOUT
-// ============================================================
-document.getElementById('logoutBtn').addEventListener('click', async () => {
-  try { await apiCall('/api/logout', { method: 'POST' }); } catch (_) {}
-  sessionStorage.removeItem('token');
-  sessionStorage.removeItem('user');
-  window.location.href = '/index.html';
-});
-
-// ============================================================
-//  INIT
+//  START
 // ============================================================
 document.addEventListener('DOMContentLoaded', initDashboard);
 
