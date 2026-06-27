@@ -20,9 +20,10 @@
     ::-webkit-scrollbar-track { background:#e8ecf1; }
     ::-webkit-scrollbar-thumb { background:#1a472a; border-radius:8px; }
 
+    /* Header */
     .dash-header {
       background: linear-gradient(135deg, #0f2a1a 0%, #1a472a 60%, #2d7d3a 100%);
-      padding: 12px 28px;
+      padding: 10px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -35,98 +36,106 @@
     }
     .dash-header .brand .logo-small {
       display:flex; align-items:center; justify-content:center;
-      width:40px; height:40px;
-      background:rgba(255,255,255,0.15); border-radius:14px;
-      font-size:20px; color:#f5c842;
+      width:36px; height:36px;
+      background:rgba(255,255,255,0.15); border-radius:12px;
+      font-size:18px; color:#f5c842;
     }
-    .dash-header .brand h2 { font-size:18px; font-weight:700; }
+    .dash-header .brand h2 { font-size:16px; font-weight:700; }
     .dash-header .brand h2 span { color:#f5c842; }
-    .header-actions { display:flex; align-items:center; gap:16px; }
+    .header-actions { display:flex; align-items:center; gap:12px; }
     .profile-dropdown { position:relative; cursor:pointer; }
     .profile-dropdown img {
-      width:40px; height:40px; border-radius:50%; object-fit:cover;
+      width:36px; height:36px; border-radius:50%; object-fit:cover;
       border:2px solid #f5c842; transition:transform 0.2s;
     }
     .profile-dropdown img:hover { transform:scale(1.05); }
     .dropdown-menu {
-      display:none; position:absolute; right:0; top:50px;
-      background:#fff; border-radius:16px;
+      display:none; position:absolute; right:0; top:44px;
+      background:#fff; border-radius:12px;
       box-shadow:0 8px 30px rgba(0,0,0,0.15);
-      min-width:200px; overflow:hidden; z-index:200;
+      min-width:180px; overflow:hidden; z-index:200;
     }
     .dropdown-menu.open { display:block; }
     .dropdown-menu .menu-item {
-      padding:12px 20px; font-size:14px; font-weight:500;
+      padding:10px 16px; font-size:13px; font-weight:500;
       color:#1a1a2e; border-bottom:1px solid #eef2f7;
-      cursor:pointer; display:flex; align-items:center; gap:12px;
+      cursor:pointer; display:flex; align-items:center; gap:10px;
     }
     .dropdown-menu .menu-item:last-child { border-bottom:none; }
     .dropdown-menu .menu-item:hover { background:#f0f4f8; }
-    .dropdown-menu .menu-item i { width:20px; color:#1a472a; }
+    .dropdown-menu .menu-item i { width:18px; color:#1a472a; }
     .dropdown-menu .menu-item.logout { color:#c0392b; }
     .dropdown-menu .menu-item.logout i { color:#c0392b; }
 
+    /* Tabs – smaller */
     .dash-tabs {
       display:flex; background:#fff; border-bottom:1px solid #e8ecf1;
-      padding:0 20px; position:sticky; top:68px; z-index:90;
+      padding:0 16px; position:sticky; top:58px; z-index:90;
       box-shadow:0 2px 8px rgba(0,0,0,0.04);
     }
     .dash-tabs .tab-btn {
-      padding:14px 20px; font-size:14px; font-weight:600;
+      padding:10px 14px; font-size:13px; font-weight:600;
       color:#5a6a7a; background:none; border:none;
       border-bottom:3px solid transparent; cursor:pointer;
-      transition:all 0.2s; display:flex; align-items:center; gap:8px;
+      transition:all 0.2s; display:flex; align-items:center; gap:6px;
     }
     .dash-tabs .tab-btn:hover { color:#1a472a; background:#f0f4f8; }
     .dash-tabs .tab-btn.active { color:#1a472a; border-bottom-color:#1a472a; background:transparent; }
-    .dash-tabs .tab-btn i { font-size:16px; }
+    .dash-tabs .tab-btn i { font-size:15px; }
 
+    /* Stories – compact */
     .stories-bar {
-      background:#fff; padding:16px 20px;
-      margin:16px 20px 0; border-radius:16px;
+      background:#fff; padding:10px 16px;
+      margin:10px 16px 0; border-radius:12px;
       box-shadow:0 2px 8px rgba(0,0,0,0.04);
-      display:flex; align-items:center; gap:16px;
+      display:flex; align-items:center; gap:12px;
       overflow-x:auto; white-space:nowrap;
     }
     .stories-bar .story-item {
       display:inline-flex; flex-direction:column; align-items:center;
-      gap:4px; cursor:pointer; min-width:72px;
+      gap:2px; cursor:pointer; min-width:64px;
     }
     .stories-bar .story-item img {
-      width:56px; height:56px; border-radius:50%; object-fit:cover;
+      width:44px; height:44px; border-radius:50%; object-fit:cover;
       border:3px solid #1a472a;
     }
     .stories-bar .story-item .story-name {
-      font-size:11px; font-weight:500; color:#1a1a2e;
-      max-width:64px; overflow:hidden; text-overflow:ellipsis;
+      font-size:10px; font-weight:500; color:#1a1a2e;
+      max-width:56px; overflow:hidden; text-overflow:ellipsis;
     }
     .stories-bar .story-item.add-story {
       border:2px dashed #b0c0d0; border-radius:50%;
-      width:56px; height:56px; display:flex;
+      width:44px; height:44px; display:flex;
       align-items:center; justify-content:center;
-      font-size:24px; color:#1a472a; background:#f8fafc;
+      font-size:20px; color:#1a472a; background:#f8fafc;
       cursor:pointer;
     }
     .stories-bar .story-item.add-story:hover { background:#e4eaf0; }
+    .stories-bar .story-item .delete-story {
+      font-size:10px; color:#e74c3c; cursor:pointer;
+      background:rgba(255,255,255,0.8); border-radius:50%; padding:0 4px;
+      margin-left:4px;
+    }
 
+    /* Main layout – compact */
     .dash-body {
-      display:flex; padding:16px 20px 100px; gap:24px;
+      display:flex; padding:12px 16px 80px; gap:16px;
       max-width:1400px; margin:0 auto;
     }
     .dash-main { flex:1; min-width:0; }
     .dash-sidebar {
-      width:280px; flex-shrink:0; background:#fff;
-      border-radius:16px; padding:16px;
+      width:240px; flex-shrink:0; background:#fff;
+      border-radius:12px; padding:12px;
       box-shadow:0 2px 8px rgba(0,0,0,0.04);
-      height:fit-content; position:sticky; top:130px;
-      max-height:calc(100vh - 160px); overflow-y:auto;
+      height:fit-content; position:sticky; top:100px;
+      max-height:calc(100vh - 140px); overflow-y:auto;
     }
     .dash-sidebar .online-title {
-      font-weight:700; font-size:15px; margin-bottom:12px;
-      display:flex; align-items:center; gap:8px;
+      font-weight:600; font-size:13px; margin-bottom:8px;
+      display:flex; align-items:center; gap:6px;
     }
     .dash-sidebar .online-title .dot {
-      width:10px; height:10px; background:#2ecc71;
+      width:8px; height:8px; background:#2ecc71;
       border-radius:50%; display:inline-block;
       animation:pulse-dot 1.6s infinite;
     }
@@ -135,64 +144,66 @@
       50%{ opacity:0.5; transform:scale(0.85); }
     }
     .dash-sidebar .year-tabs {
-      display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;
+      display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px;
     }
     .dash-sidebar .year-tabs .year-tab {
-      padding:4px 12px; border-radius:20px; font-size:12px;
+      padding:2px 10px; border-radius:16px; font-size:11px;
       font-weight:600; background:#f0f4f8; color:#3a4a5a;
       border:none; cursor:pointer;
     }
     .dash-sidebar .year-tabs .year-tab.active { background:#1a472a; color:#fff; }
     .user-list {
-      display:flex; flex-direction:column; gap:6px;
+      display:flex; flex-direction:column; gap:4px;
     }
     .user-list .user-item {
-      display:flex; align-items:center; gap:10px;
-      padding:6px 8px; border-radius:12px;
+      display:flex; align-items:center; gap:8px;
+      padding:4px 6px; border-radius:8px;
       cursor:pointer; transition:background 0.2s;
       border:none; background:transparent; width:100%; text-align:left;
     }
     .user-list .user-item:hover { background:#f0f4f8; }
     .user-list .user-item img {
-      width:32px; height:32px; border-radius:50%; object-fit:cover;
+      width:28px; height:28px; border-radius:50%; object-fit:cover;
     }
     .user-list .user-item .uinfo { flex:1; min-width:0; }
-    .user-list .user-item .uinfo .uname { font-size:13px; font-weight:600; }
-    .user-list .user-item .uinfo .uyear { font-size:11px; color:#6a7a8a; }
+    .user-list .user-item .uinfo .uname { font-size:12px; font-weight:600; }
+    .user-list .user-item .uinfo .uyear { font-size:10px; color:#6a7a8a; }
     .user-list .user-item .online-badge {
-      width:8px; height:8px; background:#2ecc71; border-radius:50%; flex-shrink:0;
+      width:6px; height:6px; background:#2ecc71; border-radius:50%; flex-shrink:0;
     }
     .user-list .user-item .offline-badge {
-      width:8px; height:8px; background:#b0c0d0; border-radius:50%; flex-shrink:0;
+      width:6px; height:6px; background:#b0c0d0; border-radius:50%; flex-shrink:0;
     }
 
+    /* Tab panels */
     .tab-panel { display:none; animation:fadeUp 0.3s ease; }
     .tab-panel.active { display:block; }
-    @keyframes fadeUp { 0%{ opacity:0; transform:translateY(18px); } 100%{ opacity:1; transform:translateY(0); } }
+    @keyframes fadeUp { 0%{ opacity:0; transform:translateY(12px); } 100%{ opacity:1; transform:translateY(0); } }
 
+    /* Create post – compact */
     .create-post-box {
-      background:#fff; border-radius:16px; padding:16px 20px;
-      margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
+      background:#fff; border-radius:12px; padding:12px 16px;
+      margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
     }
     .create-post-box .post-input-area {
-      display:flex; align-items:center; gap:12px;
+      display:flex; align-items:center; gap:10px;
     }
     .create-post-box .post-input-area img {
-      width:40px; height:40px; border-radius:50%; object-fit:cover;
+      width:32px; height:32px; border-radius:50%; object-fit:cover;
     }
     .create-post-box .post-input-area input {
-      flex:1; padding:10px 16px; border:2px solid #e8ecf1;
-      border-radius:30px; font-size:14px; outline:none;
+      flex:1; padding:8px 14px; border:2px solid #e8ecf1;
+      border-radius:30px; font-size:13px; outline:none;
       background:#f8fafc;
     }
     .create-post-box .post-input-area input:focus { border-color:#1a472a; background:#fff; }
     .post-tools {
-      display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;
+      display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;
     }
     .post-tools button {
-      padding:6px 14px; border:none; border-radius:30px;
-      background:#f0f4f8; font-size:13px; font-weight:600;
-      color:#3a4a5a; cursor:pointer; display:flex; align-items:center; gap:6px;
+      padding:4px 12px; border:none; border-radius:20px;
+      background:#f0f4f8; font-size:12px; font-weight:600;
+      color:#3a4a5a; cursor:pointer; display:flex; align-items:center; gap:4px;
     }
     .post-tools button:hover { background:#e4eaf0; }
     .post-tools .sticker-btn { color:#f39c12; }
@@ -204,211 +215,248 @@
     }
     .post-tools .submit-post:hover { box-shadow:0 4px 12px rgba(26,71,42,0.30); }
     .sticker-picker {
-      display:none; gap:8px; flex-wrap:wrap; margin-top:10px;
-      padding:10px; background:#f8fafc; border-radius:12px;
+      display:none; gap:6px; flex-wrap:wrap; margin-top:8px;
+      padding:8px; background:#f8fafc; border-radius:10px;
       border:1px solid #e8ecf1;
     }
     .sticker-picker.open { display:flex; }
     .sticker-picker .sticker-emoji {
-      font-size:28px; cursor:pointer; padding:4px 8px;
-      border-radius:8px; background:#fff; border:1px solid #e8ecf1;
+      font-size:24px; cursor:pointer; padding:2px 6px;
+      border-radius:6px; background:#fff; border:1px solid #e8ecf1;
       transition:transform 0.2s;
     }
     .sticker-picker .sticker-emoji:hover { transform:scale(1.2); border-color:#1a472a; }
 
+    .auto-delete-hint {
+      font-size:11px; color:#6a7a8a; margin-top:6px;
+      display:flex; align-items:center; gap:4px;
+    }
+
+    /* Post card – compact */
     .post-card {
-      background:#fff; border-radius:16px; padding:16px 20px 12px;
-      margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
+      background:#fff; border-radius:12px; padding:12px 16px 10px;
+      margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
+      position:relative;
     }
     .post-card .post-header {
-      display:flex; align-items:center; gap:12px; margin-bottom:10px;
+      display:flex; align-items:center; gap:10px; margin-bottom:6px;
     }
     .post-card .post-header img {
-      width:40px; height:40px; border-radius:50%; object-fit:cover;
+      width:32px; height:32px; border-radius:50%; object-fit:cover;
     }
     .post-card .post-header .post-user { flex:1; }
-    .post-card .post-header .post-user .pname { font-weight:700; font-size:14px; }
-    .post-card .post-header .post-user .ptime { font-size:12px; color:#8a9aaa; }
+    .post-card .post-header .post-user .pname {
+      font-weight:600; font-size:13px;
+    }
+    .post-card .post-header .post-user .ptime {
+      font-size:10px; color:#8a9aaa;
+    }
     .post-card .post-content {
-      font-size:15px; line-height:1.6; margin-bottom:8px;
+      font-size:14px; line-height:1.5; margin-bottom:4px;
     }
     .post-card .post-content .sticker-display {
-      font-size:48px; display:block; text-align:center;
+      font-size:40px; display:block; text-align:center;
     }
     .post-card .post-content .audio-display {
-      display:flex; align-items:center; gap:12px;
-      background:#f0f4f8; padding:8px 16px; border-radius:30px;
-      max-width:280px;
+      display:flex; align-items:center; gap:10px;
+      background:#f0f4f8; padding:4px 12px; border-radius:20px;
+      max-width:200px;
     }
     .post-card .post-content .audio-display button {
       background:#1a472a; border:none; color:#fff;
-      width:32px; height:32px; border-radius:50%; cursor:pointer;
+      width:28px; height:28px; border-radius:50%; cursor:pointer;
+      font-size:12px;
     }
     .post-card .post-content .audio-display button:hover { background:#2d7d3a; }
     .post-card .post-content video {
-      max-width:100%; border-radius:12px; max-height:360px; background:#000;
+      max-width:100%; border-radius:8px; max-height:240px; background:#000;
     }
     .post-card .post-actions {
-      display:flex; gap:16px; margin-top:10px; padding-top:10px;
+      display:flex; gap:12px; margin-top:6px; padding-top:6px;
       border-top:1px solid #eef2f7;
     }
     .post-card .post-actions button {
-      border:none; background:transparent; font-size:13px; font-weight:600;
-      color:#5a6a7a; cursor:pointer; display:flex; align-items:center; gap:6px;
-      padding:4px 8px; border-radius:20px;
+      border:none; background:transparent; font-size:12px; font-weight:600;
+      color:#5a6a7a; cursor:pointer; display:flex; align-items:center; gap:4px;
+      padding:2px 6px; border-radius:12px;
     }
     .post-card .post-actions button:hover { background:#f0f4f8; }
     .post-card .post-actions button.liked { color:#e74c3c; }
     .post-card .post-actions button.liked i { color:#e74c3c; }
     .post-card .post-comments {
-      margin-top:10px; padding-top:10px; border-top:1px solid #eef2f7;
+      margin-top:6px; padding-top:6px; border-top:1px solid #eef2f7;
     }
     .post-card .post-comments .comment-item {
-      display:flex; gap:8px; margin-bottom:6px; font-size:13px;
+      display:flex; gap:6px; margin-bottom:4px; font-size:12px;
     }
     .post-card .post-comments .comment-item img {
-      width:28px; height:28px; border-radius:50%; object-fit:cover;
+      width:24px; height:24px; border-radius:50%; object-fit:cover;
     }
     .post-card .post-comments .comment-item .cbody {
-      background:#f0f4f8; padding:4px 12px; border-radius:16px; flex:1;
+      background:#f0f4f8; padding:2px 10px; border-radius:12px; flex:1;
     }
     .post-card .post-comments .comment-item .cbody strong { font-weight:600; }
     .post-card .post-comments .comment-input {
-      display:flex; gap:8px; margin-top:8px;
+      display:flex; gap:6px; margin-top:4px;
     }
     .post-card .post-comments .comment-input input {
-      flex:1; padding:6px 14px; border:2px solid #e8ecf1;
-      border-radius:30px; font-size:13px; outline:none; background:#f8fafc;
+      flex:1; padding:4px 10px; border:2px solid #e8ecf1;
+      border-radius:20px; font-size:12px; outline:none; background:#f8fafc;
     }
     .post-card .post-comments .comment-input input:focus { border-color:#1a472a; }
     .post-card .post-comments .comment-input button {
-      padding:6px 16px; border:none; background:#1a472a; color:#fff;
-      border-radius:30px; font-weight:600; font-size:13px; cursor:pointer;
+      padding:4px 12px; border:none; background:#1a472a; color:#fff;
+      border-radius:20px; font-weight:600; font-size:12px; cursor:pointer;
     }
     .post-card .post-comments .comment-input button:hover { background:#2d7d3a; }
+    .post-card .delete-btn {
+      position:absolute; top:8px; right:8px;
+      background:none; border:none; color:#b0c0d0;
+      cursor:pointer; font-size:14px;
+    }
+    .post-card .delete-btn:hover { color:#e74c3c; }
 
+    /* Friends grid – compact */
     .friends-grid {
-      display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
-      gap:16px;
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr));
+      gap:12px;
     }
     .friends-grid .friend-card {
-      background:#fff; border-radius:16px; padding:16px;
+      background:#fff; border-radius:12px; padding:12px;
       text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.04);
     }
     .friends-grid .friend-card img {
-      width:72px; height:72px; border-radius:50%; object-fit:cover;
-      margin-bottom:8px;
+      width:56px; height:56px; border-radius:50%; object-fit:cover;
+      margin-bottom:4px;
     }
-    .friends-grid .friend-card .fname { font-weight:700; font-size:14px; }
-    .friends-grid .friend-card .fyear { font-size:12px; color:#6a7a8a; }
+    .friends-grid .friend-card .fname { font-weight:600; font-size:13px; }
+    .friends-grid .friend-card .fyear { font-size:11px; color:#6a7a8a; }
     .friends-grid .friend-card .chat-btn {
-      margin-top:8px; padding:6px 16px; border:none;
-      background:#1a472a; color:#fff; border-radius:30px;
-      font-weight:600; cursor:pointer;
+      margin-top:6px; padding:4px 12px; border:none;
+      background:#1a472a; color:#fff; border-radius:20px;
+      font-weight:600; font-size:12px; cursor:pointer;
     }
     .friends-grid .friend-card .chat-btn:hover { background:#2d7d3a; }
-    .search-box { margin-bottom:16px; }
+    .search-box { margin-bottom:12px; }
     .search-box input {
-      width:100%; padding:10px 16px; border:2px solid #e8ecf1;
-      border-radius:30px; font-size:14px; outline:none; background:#fff;
+      width:100%; padding:8px 14px; border:2px solid #e8ecf1;
+      border-radius:20px; font-size:13px; outline:none; background:#fff;
     }
     .search-box input:focus { border-color:#1a472a; }
 
+    /* Chat list – compact */
     .chat-list {
-      display:flex; flex-direction:column; gap:8px;
+      display:flex; flex-direction:column; gap:6px;
     }
     .chat-list .chat-item {
-      display:flex; align-items:center; gap:14px;
-      padding:12px 16px; background:#fff; border-radius:16px;
+      display:flex; align-items:center; gap:10px;
+      padding:8px 12px; background:#fff; border-radius:12px;
       cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.04);
       transition:transform 0.2s;
+      position:relative;
     }
     .chat-list .chat-item:hover { transform:translateX(4px); }
     .chat-list .chat-item img {
-      width:44px; height:44px; border-radius:50%; object-fit:cover;
+      width:36px; height:36px; border-radius:50%; object-fit:cover;
     }
     .chat-list .chat-item .cinfo { flex:1; min-width:0; }
-    .chat-list .chat-item .cinfo .cname { font-weight:700; font-size:14px; }
+    .chat-list .chat-item .cinfo .cname { font-weight:600; font-size:13px; }
     .chat-list .chat-item .cinfo .cmsg {
-      font-size:13px; color:#6a7a8a;
+      font-size:12px; color:#6a7a8a;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    .chat-list .chat-item .ctime { font-size:11px; color:#8a9aaa; }
+    .chat-list .chat-item .ctime { font-size:10px; color:#8a9aaa; }
+    .chat-list .chat-item .delete-msg {
+      position:absolute; top:4px; right:6px;
+      background:none; border:none; color:#b0c0d0;
+      cursor:pointer; font-size:12px;
+    }
+    .chat-list .chat-item .delete-msg:hover { color:#e74c3c; }
 
+    /* Videos – compact */
     .video-grid {
-      display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr));
-      gap:16px;
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr));
+      gap:12px;
     }
     .video-grid .video-card {
-      background:#fff; border-radius:16px; overflow:hidden;
+      background:#fff; border-radius:12px; overflow:hidden;
       box-shadow:0 2px 8px rgba(0,0,0,0.04);
     }
     .video-grid .video-card video {
-      width:100%; height:160px; object-fit:cover; background:#000;
+      width:100%; height:120px; object-fit:cover; background:#000;
     }
-    .video-grid .video-card .video-info { padding:12px; }
-    .video-grid .video-card .video-info h4 { font-size:14px; font-weight:600; }
-    .video-grid .video-card .video-info p { font-size:12px; color:#6a7a8a; }
+    .video-grid .video-card .video-info { padding:8px 10px; }
+    .video-grid .video-card .video-info h4 { font-size:13px; font-weight:600; }
+    .video-grid .video-card .video-info p { font-size:11px; color:#6a7a8a; }
 
+    /* Businesses – compact */
     .business-grid {
-      display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr));
-      gap:16px;
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr));
+      gap:12px;
     }
     .business-grid .biz-card {
-      background:#fff; border-radius:16px; padding:16px;
+      background:#fff; border-radius:12px; padding:12px;
       box-shadow:0 2px 8px rgba(0,0,0,0.04);
       text-align:center;
+      position:relative;
     }
     .business-grid .biz-card .biz-img {
-      width:100%; height:120px; object-fit:cover; border-radius:8px;
-      margin-bottom:8px;
+      width:100%; height:100px; object-fit:cover; border-radius:6px;
+      margin-bottom:4px;
     }
-    .business-grid .biz-card .biz-name { font-weight:700; font-size:16px; }
-    .business-grid .biz-card .biz-desc { font-size:13px; color:#5a6a7a; }
+    .business-grid .biz-card .biz-name { font-weight:600; font-size:14px; }
+    .business-grid .biz-card .biz-desc { font-size:12px; color:#5a6a7a; }
     .business-grid .biz-card .biz-author {
-      display:flex; align-items:center; gap:8px; margin-top:8px;
-      font-size:12px; color:#6a7a8a;
+      display:flex; align-items:center; gap:6px; margin-top:4px;
+      font-size:11px; color:#6a7a8a;
     }
     .business-grid .biz-card .biz-author img {
-      width:28px; height:28px; border-radius:50%; object-fit:cover;
+      width:24px; height:24px; border-radius:50%; object-fit:cover;
     }
+    .business-grid .biz-card .delete-biz {
+      position:absolute; top:4px; right:6px;
+      background:none; border:none; color:#b0c0d0;
+      cursor:pointer; font-size:12px;
+    }
+    .business-grid .biz-card .delete-biz:hover { color:#e74c3c; }
     .business-grid .biz-card.anim-fade { animation:fadeIn 0.6s ease; }
     .business-grid .biz-card.anim-slide { animation:slideIn 0.6s ease; }
     .business-grid .biz-card.anim-bounce { animation:bounceIn 0.8s ease; }
     .business-grid .biz-card.anim-glow { animation:glowPulse 1.5s infinite; }
     @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-    @keyframes slideIn { from{transform:translateX(-30px);opacity:0;} to{transform:translateX(0);opacity:1;} }
+    @keyframes slideIn { from{transform:translateX(-20px);opacity:0;} to{transform:translateX(0);opacity:1;} }
     @keyframes bounceIn { 0%{transform:scale(0.8);opacity:0;} 60%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
-    @keyframes glowPulse { 0%,100%{box-shadow:0 0 5px rgba(26,71,42,0.2);} 50%{box-shadow:0 0 20px rgba(26,71,42,0.6);} }
+    @keyframes glowPulse { 0%,100%{box-shadow:0 0 5px rgba(26,71,42,0.2);} 50%{box-shadow:0 0 15px rgba(26,71,42,0.5);} }
 
     .add-biz-form {
-      background:#fff; border-radius:16px; padding:20px;
-      margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
+      background:#fff; border-radius:12px; padding:12px 16px;
+      margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
     }
     .add-biz-form .form-row {
-      display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px;
+      display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;
     }
     .add-biz-form .form-row input, .add-biz-form .form-row select,
     .add-biz-form .form-row textarea {
-      flex:1; min-width:200px; padding:10px 14px;
-      border:2px solid #e8ecf1; border-radius:12px;
-      font-size:14px; outline:none; background:#f8fafc;
+      flex:1; min-width:120px; padding:6px 10px;
+      border:2px solid #e8ecf1; border-radius:8px;
+      font-size:12px; outline:none; background:#f8fafc;
     }
     .add-biz-form .form-row input:focus, .add-biz-form .form-row select:focus,
     .add-biz-form .form-row textarea:focus { border-color:#1a472a; }
-    .add-biz-form .form-row textarea { flex-basis:100%; min-height:60px; resize:vertical; }
+    .add-biz-form .form-row textarea { flex-basis:100%; min-height:40px; resize:vertical; }
     .add-biz-form .form-row .file-input {
-      padding:8px; background:#f8fafc; border:2px dashed #b0c0d0;
-      border-radius:12px; cursor:pointer;
+      padding:4px; background:#f8fafc; border:2px dashed #b0c0d0;
+      border-radius:8px; cursor:pointer;
     }
     .add-biz-form .submit-biz {
-      padding:10px 24px;
+      padding:6px 16px;
       background:linear-gradient(135deg, #1a472a, #2d7d3a);
-      border:none; border-radius:30px; color:#fff;
-      font-weight:700; cursor:pointer;
+      border:none; border-radius:20px; color:#fff;
+      font-weight:600; font-size:13px; cursor:pointer;
     }
     .add-biz-form .submit-biz:hover { box-shadow:0 4px 12px rgba(26,71,42,0.30); }
 
+    /* Modals */
     .modal-overlay {
       display:none; position:fixed; inset:0;
       background:rgba(0,0,0,0.50); backdrop-filter:blur(6px);
@@ -416,43 +464,44 @@
     }
     .modal-overlay.open { display:flex; }
     .modal-overlay .modal-box {
-      background:#fff; border-radius:32px; max-width:540px;
-      width:100%; padding:32px 28px; max-height:90vh;
+      background:#fff; border-radius:24px; max-width:480px;
+      width:100%; padding:24px 20px; max-height:90vh;
       overflow-y:auto; animation:fadeUp 0.3s ease;
       box-shadow:0 40px 80px rgba(0,0,0,0.30);
     }
     .modal-overlay .modal-box .modal-header {
       display:flex; justify-content:space-between; align-items:center;
-      margin-bottom:20px;
+      margin-bottom:16px;
     }
-    .modal-overlay .modal-box .modal-header h3 { font-size:20px; font-weight:700; }
+    .modal-overlay .modal-box .modal-header h3 { font-size:18px; font-weight:700; }
     .modal-overlay .modal-box .modal-header .close-modal {
-      background:none; border:none; font-size:24px; cursor:pointer;
+      background:none; border:none; font-size:22px; cursor:pointer;
       color:#6a7a8a;
     }
     .modal-overlay .modal-box .modal-header .close-modal:hover { color:#1a1a2e; }
-    .modal-overlay .modal-box .form-group { margin-bottom:16px; }
+    .modal-overlay .modal-box .form-group { margin-bottom:12px; }
     .modal-overlay .modal-box label {
-      display:block; font-size:13px; font-weight:600; color:#2d3a4a;
-      margin-bottom:4px;
+      display:block; font-size:12px; font-weight:600; color:#2d3a4a;
+      margin-bottom:2px;
     }
     .modal-overlay .modal-box input, .modal-overlay .modal-box textarea {
-      width:100%; padding:10px 14px; border:2px solid #e8ecf1;
-      border-radius:12px; font-size:14px; outline:none;
+      width:100%; padding:8px 12px; border:2px solid #e8ecf1;
+      border-radius:10px; font-size:13px; outline:none;
       background:#f8fafc;
     }
     .modal-overlay .modal-box input:focus, .modal-overlay .modal-box textarea:focus {
       border-color:#1a472a; background:#fff;
     }
 
+    /* Chat modal */
     .chat-modal .modal-box { max-width:480px; }
     .chat-modal .chat-messages {
-      max-height:320px; overflow-y:auto; padding:8px 0;
-      display:flex; flex-direction:column; gap:6px;
+      max-height:280px; overflow-y:auto; padding:6px 0;
+      display:flex; flex-direction:column; gap:4px;
     }
     .chat-modal .chat-messages .msg {
-      padding:8px 14px; border-radius:16px; max-width:80%;
-      font-size:14px; word-wrap:break-word;
+      padding:6px 12px; border-radius:12px; max-width:80%;
+      font-size:13px; word-wrap:break-word;
     }
     .chat-modal .chat-messages .msg.sent {
       background:#1a472a; color:#fff; align-self:flex-end;
@@ -463,92 +512,108 @@
       border-bottom-left-radius:4px;
     }
     .chat-modal .chat-messages .msg .msg-time {
-      font-size:10px; opacity:0.6; margin-left:10px;
+      font-size:9px; opacity:0.6; margin-left:8px;
     }
     .chat-modal .chat-input-row {
-      display:flex; gap:10px; margin-top:12px;
+      display:flex; gap:8px; margin-top:8px;
     }
     .chat-modal .chat-input-row input {
-      flex:1; padding:10px 16px; border:2px solid #e8ecf1;
-      border-radius:30px; font-size:14px; outline:none; background:#f8fafc;
+      flex:1; padding:6px 12px; border:2px solid #e8ecf1;
+      border-radius:20px; font-size:13px; outline:none; background:#f8fafc;
     }
     .chat-modal .chat-input-row input:focus { border-color:#1a472a; }
     .chat-modal .chat-input-row button {
-      padding:10px 20px; border:none; background:#1a472a; color:#fff;
-      border-radius:30px; font-weight:700; cursor:pointer;
+      padding:6px 16px; border:none; background:#1a472a; color:#fff;
+      border-radius:20px; font-weight:600; cursor:pointer;
     }
     .chat-modal .chat-input-row button:hover { background:#2d7d3a; }
     .chat-modal .chat-header-user {
-      display:flex; align-items:center; gap:12px; margin-bottom:12px;
+      display:flex; align-items:center; gap:10px; margin-bottom:8px;
     }
     .chat-modal .chat-header-user img {
-      width:40px; height:40px; border-radius:50%; object-fit:cover;
+      width:32px; height:32px; border-radius:50%; object-fit:cover;
     }
-    .chat-modal .chat-header-user h4 { font-size:16px; }
+    .chat-modal .chat-header-user h4 { font-size:15px; }
 
-    .dev-content { padding:12px 0; }
-    .dev-content .dev-avatar { font-size:48px; color:#1a472a; text-align:center; }
-    .dev-content h3 { font-size:18px; color:#1a472a; margin:8px 0 4px; }
-    .dev-content p { font-size:14px; color:#3a4a5a; line-height:1.6; }
-    .dev-content .tags { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    /* Story viewer modal */
+    .story-viewer .modal-box { max-width:400px; text-align:center; }
+    .story-viewer .story-text {
+      font-size:20px; padding:20px 0; line-height:1.6;
+    }
+    .story-viewer .story-author {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      font-size:14px; color:#6a7a8a;
+    }
+    .story-viewer .story-author img {
+      width:32px; height:32px; border-radius:50%; object-fit:cover;
+    }
+
+    /* Developer content */
+    .dev-content { padding:8px 0; }
+    .dev-content .dev-avatar { font-size:40px; color:#1a472a; text-align:center; }
+    .dev-content h3 { font-size:17px; color:#1a472a; margin:6px 0 2px; }
+    .dev-content p { font-size:13px; color:#3a4a5a; line-height:1.5; }
+    .dev-content .tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
     .dev-content .tags span {
-      background:#e8ecf1; padding:4px 12px; border-radius:20px;
-      font-size:12px; font-weight:500;
+      background:#e8ecf1; padding:2px 10px; border-radius:16px;
+      font-size:11px; font-weight:500;
     }
     .empty-state {
-      text-align:center; padding:40px 20px; color:#6a7a8a;
+      text-align:center; padding:30px 20px; color:#6a7a8a;
     }
-    .empty-state i { font-size:48px; color:#b0c0d0; margin-bottom:12px; }
-    .empty-state h3 { font-size:18px; color:#3a4a5a; }
+    .empty-state i { font-size:40px; color:#b0c0d0; margin-bottom:8px; }
+    .empty-state h3 { font-size:16px; color:#3a4a5a; }
 
     .mobile-nav {
       display:none; position:fixed; bottom:0; left:0; right:0;
-      background:#fff; padding:8px 10px;
+      background:#fff; padding:6px 8px;
       box-shadow:0 -4px 20px rgba(0,0,0,0.08);
       z-index:200; border-top:1px solid #e8ecf1;
       justify-content:space-around;
     }
     .mobile-nav .mnav-item {
       display:flex; flex-direction:column; align-items:center;
-      gap:2px; border:none; background:transparent;
-      font-size:10px; font-weight:600; color:#6a7a8a;
-      cursor:pointer; padding:4px 10px;
+      gap:1px; border:none; background:transparent;
+      font-size:9px; font-weight:600; color:#6a7a8a;
+      cursor:pointer; padding:2px 6px;
     }
-    .mobile-nav .mnav-item i { font-size:20px; }
+    .mobile-nav .mnav-item i { font-size:18px; }
     .mobile-nav .mnav-item.active { color:#1a472a; }
     @media (max-width:1024px) { .dash-sidebar { display:none; } .mobile-nav { display:flex; } }
     @media (max-width:768px) {
-      .dash-tabs .tab-btn { padding:10px 12px; font-size:12px; }
+      .dash-tabs .tab-btn { padding:8px 10px; font-size:12px; }
       .dash-tabs .tab-btn span { display:none; }
-      .dash-tabs .tab-btn i { font-size:20px; }
-      .stories-bar { margin:12px 10px 0; padding:12px 16px; }
-    }
-    @media (max-width:480px) {
-      .dash-header { padding:10px 16px; }
-      .dash-header .brand h2 { font-size:16px; }
+      .dash-tabs .tab-btn i { font-size:18px; }
+      .stories-bar { margin:8px 10px 0; padding:8px 12px; }
+      .dash-body { padding:8px 10px 70px; }
       .friends-grid { grid-template-columns:1fr 1fr; }
       .business-grid { grid-template-columns:1fr; }
+    }
+    @media (max-width:480px) {
+      .dash-header { padding:8px 12px; }
+      .dash-header .brand h2 { font-size:14px; }
+      .friends-grid { grid-template-columns:1fr 1fr; }
     }
 
     .error-overlay {
       text-align:center;
-      padding:60px 20px;
-      max-width:600px;
-      margin:80px auto;
+      padding:40px 20px;
+      max-width:500px;
+      margin:60px auto;
       background:#fff;
-      border-radius:24px;
+      border-radius:20px;
       box-shadow:0 4px 20px rgba(0,0,0,0.08);
     }
-    .error-overlay i { font-size:64px; color:#e74c3c; margin-bottom:20px; }
-    .error-overlay h2 { font-size:24px; color:#1a1a2e; margin-bottom:8px; }
-    .error-overlay p { color:#6a7a8a; margin-bottom:20px; }
+    .error-overlay i { font-size:48px; color:#e74c3c; margin-bottom:16px; }
+    .error-overlay h2 { font-size:20px; color:#1a1a2e; margin-bottom:6px; }
+    .error-overlay p { color:#6a7a8a; margin-bottom:16px; }
     .error-overlay .btn {
-      padding:10px 24px;
+      padding:8px 20px;
       background:#1a472a;
       color:#fff;
       border:none;
-      border-radius:30px;
-      font-size:16px;
+      border-radius:24px;
+      font-size:14px;
       font-weight:600;
       cursor:pointer;
     }
@@ -619,6 +684,7 @@
             <span class="sticker-emoji" data-sticker="🤝">🤝</span>
           </div>
           <input type="file" id="videoFileInput" accept="video/*" style="display:none;" />
+          <div class="auto-delete-hint"><i class="fas fa-clock"></i> Posts and stories auto‑delete after 15 hours</div>
         </div>
         <div id="postsContainer"></div>
       </div>
@@ -628,8 +694,8 @@
         <div class="search-box">
           <input type="text" id="friendSearch" placeholder="Search friends..." />
         </div>
-        <div id="pendingRequests" style="margin-bottom:16px;"></div>
-        <div id="findPeopleContainer" style="margin-bottom:16px;"></div>
+        <div id="pendingRequests" style="margin-bottom:12px;"></div>
+        <div id="findPeopleContainer" style="margin-bottom:12px;"></div>
         <div class="friends-grid" id="friendsGrid"></div>
       </div>
 
@@ -646,7 +712,7 @@
       <!-- BUSINESSES -->
       <div class="tab-panel" id="tab-businesses">
         <div class="add-biz-form">
-          <h3 style="margin-bottom:12px;">Advertise Your Business</h3>
+          <h3 style="font-size:16px;margin-bottom:8px;">Advertise Your Business</h3>
           <div class="form-row">
             <input type="text" id="bizName" placeholder="Business Name" />
             <select id="bizCategory">
@@ -750,6 +816,21 @@
   </div>
 </div>
 
+<!-- STORY VIEWER MODAL -->
+<div class="modal-overlay story-viewer" id="storyViewerModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3><i class="fas fa-book-open" style="color:#1a472a;"></i> Story</h3>
+      <button class="close-modal" id="closeStoryViewer">&times;</button>
+    </div>
+    <div class="story-author" id="storyViewerAuthor">
+      <img src="" alt="" />
+      <span></span>
+    </div>
+    <div class="story-text" id="storyViewerText"></div>
+  </div>
+</div>
+
 <!-- CHAT MODAL -->
 <div class="modal-overlay chat-modal" id="chatModal">
   <div class="modal-box">
@@ -837,7 +918,7 @@ async function initDashboard() {
     return;
   }
   try {
-    await apiCall('/api/users'); // validate token
+    await apiCall('/api/users');
     currentUser = JSON.parse(userData);
     document.getElementById('dashAvatar').src = currentUser.profilePic || getDefaultAvatar();
     document.getElementById('postUserAvatar').src = currentUser.profilePic || getDefaultAvatar();
@@ -893,7 +974,7 @@ async function refreshAll() {
 }
 
 // ============================================================
-//  RENDER FUNCTIONS
+//  RENDER POSTS (with delete button)
 // ============================================================
 async function renderPosts(containerId = 'postsContainer') {
   const container = document.getElementById(containerId);
@@ -913,12 +994,14 @@ async function renderPosts(containerId = 'postsContainer') {
       const pname = author.username || 'Unknown';
       const pAvatar = author.profilePic || getDefaultAvatar();
       const pYear = author.yearOfStudy || '';
+      const isOwner = post.author && post.author._id === currentUser._id;
       html += `
         <div class="post-card" data-postid="${post._id}">
+          ${isOwner ? `<button class="delete-btn" onclick="deletePost('${post._id}')"><i class="fas fa-trash-alt"></i></button>` : ''}
           <div class="post-header">
             <img src="${pAvatar}" alt="" />
             <div class="post-user">
-              <div class="pname">${pname} <span style="font-size:11px;color:#6a7a8a;">${getYearEmoji(pYear)}</span></div>
+              <div class="pname">${pname} <span style="font-size:10px;color:#6a7a8a;">${getYearEmoji(pYear)}</span></div>
               <div class="ptime">${timeAgo(post.createdAt)}</div>
             </div>
           </div>
@@ -928,8 +1011,8 @@ async function renderPosts(containerId = 'postsContainer') {
             ${post.type === 'audio' ? `
               <div class="audio-display">
                 <button onclick="playAudio('${post._id}')"><i class="fas fa-play"></i></button>
-                <span style="font-size:13px;font-weight:500;">🎵 Audio message</span>
-                <span style="font-size:12px;color:#6a7a8a;margin-left:auto;">${post.audioDuration || '0:05'}</span>
+                <span style="font-size:12px;font-weight:500;">🎵 Audio message</span>
+                <span style="font-size:11px;color:#6a7a8a;margin-left:auto;">${post.audioDuration || '0:05'}</span>
               </div>
             ` : ''}
             ${post.type === 'video' && post.videoUrl ? `
@@ -963,6 +1046,14 @@ async function renderPosts(containerId = 'postsContainer') {
   }
 }
 
+window.deletePost = async function(postId) {
+  if (!confirm('Delete this post?')) return;
+  try {
+    await apiCall(`/api/posts/${postId}`, { method: 'DELETE' });
+    await refreshAll();
+  } catch (e) { alert('Error deleting post: ' + e.message); }
+};
+
 window.toggleLike = async function(postId) {
   try {
     await apiCall(`/api/posts/${postId}/like`, { method: 'POST' });
@@ -988,45 +1079,107 @@ window.toggleComments = function(postId) {
 window.playAudio = function(postId) { alert('🔊 Playing audio (simulated)'); };
 
 // ============================================================
-//  RENDER ONLINE USERS
+//  RENDER STORIES (with click to view and delete)
 // ============================================================
-async function renderOnlineUsers(yearFilter = 'all') {
-  currentYearFilter = yearFilter;
-  const container = document.getElementById('onlineUserList');
+async function renderStories() {
+  const container = document.getElementById('storiesBar');
   if (!container) return;
   try {
-    let users = await apiCall('/api/users');
-    users = users.filter(u => u._id !== currentUser._id);
-    if (yearFilter !== 'all') users = users.filter(u => u.yearOfStudy === yearFilter);
-    users.sort((a,b) => {
-      if (a.isOnline && !b.isOnline) return -1;
-      if (!a.isOnline && b.isOnline) return 1;
-      return a.username.localeCompare(b.username);
-    });
-    if (users.length === 0) {
-      container.innerHTML = `<div style="padding:16px;text-align:center;color:#6a7a8a;font-size:13px;">No users in this year</div>`;
-      return;
-    }
-    let html = '';
-    users.forEach(u => {
-      const online = u.isOnline || false;
+    const stories = await apiCall('/api/stories') || [];
+    let html = `
+      <div class="story-item add-story" id="addStoryBtn"><i class="fas fa-plus"></i><span style="font-size:9px;">Add Story</span></div>
+    `;
+    stories.forEach(s => {
+      const author = s.author || {};
+      const isOwner = author._id === currentUser._id;
       html += `
-        <button class="user-item" onclick="openChat('${u._id}')">
-          <img src="${u.profilePic || getDefaultAvatar()}" alt="" />
-          <div class="uinfo">
-            <div class="uname">${u.username}</div>
-            <div class="uyear">${u.yearOfStudy || 'N/A'} ${online ? '• Online' : ''}</div>
-          </div>
-          <span class="${online ? 'online-badge' : 'offline-badge'}"></span>
-        </button>
+        <div class="story-item" onclick="viewStory('${s._id}')">
+          <img src="${author.profilePic || getDefaultAvatar()}" alt="" />
+          <span class="story-name">${author.username || 'Unknown'}
+            ${isOwner ? `<span class="delete-story" onclick="event.stopPropagation(); deleteStory('${s._id}')"><i class="fas fa-trash-alt"></i></span>` : ''}
+          </span>
+        </div>
       `;
     });
     container.innerHTML = html;
-  } catch (e) { container.innerHTML = `<div style="padding:16px;text-align:center;color:#6a7a8a;">Error loading users</div>`; }
+    document.getElementById('addStoryBtn').addEventListener('click', () => {
+      const text = prompt('What\'s on your mind? (Story)');
+      if (text && text.trim()) {
+        apiCall('/api/stories', { method: 'POST', body: JSON.stringify({ text: text.trim() }) })
+          .then(() => renderStories())
+          .catch(e => alert('Error adding story: ' + e.message));
+      }
+    });
+  } catch (e) { console.error('Stories error:', e); }
 }
 
+window.viewStory = async function(storyId) {
+  try {
+    const stories = await apiCall('/api/stories');
+    const story = stories.find(s => s._id === storyId);
+    if (!story) return alert('Story not found');
+    const author = story.author || {};
+    document.getElementById('storyViewerAuthor').querySelector('img').src = author.profilePic || getDefaultAvatar();
+    document.getElementById('storyViewerAuthor').querySelector('span').textContent = author.username || 'Unknown';
+    document.getElementById('storyViewerText').textContent = story.text;
+    document.getElementById('storyViewerModal').classList.add('open');
+  } catch (e) { alert('Error loading story: ' + e.message); }
+};
+
+window.deleteStory = async function(storyId) {
+  if (!confirm('Delete this story?')) return;
+  try {
+    await apiCall(`/api/stories/${storyId}`, { method: 'DELETE' });
+    await renderStories();
+  } catch (e) { alert('Error deleting story: ' + e.message); }
+};
+
 // ============================================================
-//  CHAT SYSTEM
+//  RENDER BUSINESSES (with delete)
+// ============================================================
+async function renderBusinesses() {
+  const container = document.getElementById('businessGrid');
+  if (!container) return;
+  try {
+    const businesses = await apiCall('/api/businesses') || [];
+    if (businesses.length === 0) {
+      container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-store"></i><h3>No businesses yet</h3><p>Be the first to advertise!</p></div>`;
+      return;
+    }
+    let html = '';
+    businesses.forEach(b => {
+      const animClass = b.animation || 'none';
+      const author = b.author || {};
+      const isOwner = author._id === currentUser._id;
+      html += `
+        <div class="biz-card anim-${animClass}">
+          ${isOwner ? `<button class="delete-biz" onclick="deleteBusiness('${b._id}')"><i class="fas fa-trash-alt"></i></button>` : ''}
+          ${b.image ? `<img src="${b.image}" class="biz-img" alt="${b.name}" />` : `<div class="biz-img" style="background:#e8ecf1;display:flex;align-items:center;justify-content:center;font-size:36px;color:#b0c0d0;"><i class="fas fa-store"></i></div>`}
+          <div class="biz-name">${b.name}</div>
+          <div class="biz-desc">${b.description}</div>
+          <div class="biz-author">
+            <img src="${author.profilePic || getDefaultAvatar()}" alt="" />
+            <span>${author.username || 'Unknown'}</span>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  } catch (e) {
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-exclamation-triangle"></i><h3>Error loading businesses</h3><p>${e.message}</p></div>`;
+  }
+}
+
+window.deleteBusiness = async function(bizId) {
+  if (!confirm('Delete this business?')) return;
+  try {
+    await apiCall(`/api/businesses/${bizId}`, { method: 'DELETE' });
+    await renderBusinesses();
+  } catch (e) { alert('Error deleting business: ' + e.message); }
+};
+
+// ============================================================
+//  RENDER CHATS (with delete message)
 // ============================================================
 async function renderChatList() {
   const container = document.getElementById('chatList');
@@ -1053,6 +1206,7 @@ async function renderChatList() {
               <div class="cmsg">${msgPreview.length > 40 ? msgPreview.slice(0,40)+'…' : msgPreview}</div>
             </div>
             <div class="ctime">${time}</div>
+            <button class="delete-msg" onclick="event.stopPropagation(); deleteLastMessage('${u._id}')" title="Delete last message"><i class="fas fa-trash-alt"></i></button>
           </div>
         `;
       } catch (_) {}
@@ -1063,6 +1217,57 @@ async function renderChatList() {
   }
 }
 
+window.deleteLastMessage = async function(userId) {
+  if (!confirm('Delete the last message in this chat?')) return;
+  try {
+    const msgs = await apiCall(`/api/messages/${userId}`);
+    if (!msgs || msgs.length === 0) return alert('No messages to delete');
+    const last = msgs[msgs.length - 1];
+    if (last.from !== currentUser._id) return alert('You can only delete your own messages');
+    await apiCall(`/api/messages/${last._id}`, { method: 'DELETE' });
+    await renderChatList();
+  } catch (e) { alert('Error deleting message: ' + e.message); }
+};
+
+// ============================================================
+//  OTHER RENDER FUNCTIONS (unchanged but included)
+// ============================================================
+async function renderOnlineUsers(yearFilter = 'all') {
+  currentYearFilter = yearFilter;
+  const container = document.getElementById('onlineUserList');
+  if (!container) return;
+  try {
+    let users = await apiCall('/api/users');
+    users = users.filter(u => u._id !== currentUser._id);
+    if (yearFilter !== 'all') users = users.filter(u => u.yearOfStudy === yearFilter);
+    users.sort((a,b) => {
+      if (a.isOnline && !b.isOnline) return -1;
+      if (!a.isOnline && b.isOnline) return 1;
+      return a.username.localeCompare(b.username);
+    });
+    if (users.length === 0) {
+      container.innerHTML = `<div style="padding:12px;text-align:center;color:#6a7a8a;font-size:12px;">No users in this year</div>`;
+      return;
+    }
+    let html = '';
+    users.forEach(u => {
+      const online = u.isOnline || false;
+      html += `
+        <button class="user-item" onclick="openChat('${u._id}')">
+          <img src="${u.profilePic || getDefaultAvatar()}" alt="" />
+          <div class="uinfo">
+            <div class="uname">${u.username}</div>
+            <div class="uyear">${u.yearOfStudy || 'N/A'} ${online ? '• Online' : ''}</div>
+          </div>
+          <span class="${online ? 'online-badge' : 'offline-badge'}"></span>
+        </button>
+      `;
+    });
+    container.innerHTML = html;
+  } catch (e) { container.innerHTML = `<div style="padding:12px;text-align:center;color:#6a7a8a;">Error loading users</div>`; }
+}
+
+// ===== CHAT SYSTEM =====
 window.openChat = async function(userId) {
   try {
     const users = await apiCall('/api/users');
@@ -1081,7 +1286,7 @@ async function renderChatMessages(userId) {
   try {
     const msgs = await apiCall(`/api/messages/${userId}`);
     if (!msgs || msgs.length === 0) {
-      container.innerHTML = `<div style="text-align:center;padding:24px;color:#6a7a8a;">No messages yet. Say hello! 👋</div>`;
+      container.innerHTML = `<div style="text-align:center;padding:16px;color:#6a7a8a;">No messages yet. Say hello! 👋</div>`;
       return;
     }
     let html = '';
@@ -1096,12 +1301,10 @@ async function renderChatMessages(userId) {
     });
     container.innerHTML = html;
     container.scrollTop = container.scrollHeight;
-  } catch (e) { container.innerHTML = `<div style="text-align:center;padding:24px;color:#6a7a8a;">Error loading messages</div>`; }
+  } catch (e) { container.innerHTML = `<div style="text-align:center;padding:16px;color:#6a7a8a;">Error loading messages</div>`; }
 }
 
-// ============================================================
-//  FRIENDS SYSTEM
-// ============================================================
+// ===== FRIENDS =====
 async function renderFriends(search = '') {
   const container = document.getElementById('friendsGrid');
   if (!container) return;
@@ -1140,14 +1343,14 @@ async function renderPendingRequests() {
       container.innerHTML = '';
       return;
     }
-    let html = `<h4 style="margin-bottom:8px;">Friend Requests</h4><div style="display:flex;flex-wrap:wrap;gap:8px;">`;
+    let html = `<h4 style="margin-bottom:6px;font-size:14px;">Friend Requests</h4><div style="display:flex;flex-wrap:wrap;gap:6px;">`;
     pending.forEach(u => {
       html += `
-        <div style="background:#f0f4f8;padding:8px 12px;border-radius:12px;display:flex;align-items:center;gap:8px;">
-          <img src="${u.profilePic || getDefaultAvatar()}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" />
-          <span>${u.username}</span>
-          <button onclick="acceptFriend('${u._id}')" style="padding:2px 12px;background:#1a472a;color:#fff;border:none;border-radius:12px;cursor:pointer;">Accept</button>
-          <button onclick="rejectFriend('${u._id}')" style="padding:2px 12px;background:#e74c3c;color:#fff;border:none;border-radius:12px;cursor:pointer;">✕</button>
+        <div style="background:#f0f4f8;padding:6px 10px;border-radius:10px;display:flex;align-items:center;gap:6px;">
+          <img src="${u.profilePic || getDefaultAvatar()}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;" />
+          <span style="font-size:12px;">${u.username}</span>
+          <button onclick="acceptFriend('${u._id}')" style="padding:2px 10px;background:#1a472a;color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:11px;">Accept</button>
+          <button onclick="rejectFriend('${u._id}')" style="padding:2px 10px;background:#e74c3c;color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:11px;">✕</button>
         </div>
       `;
     });
@@ -1183,22 +1386,22 @@ async function renderFindPeople(search = '') {
     const friendIds = friends.map(f => f._id);
     const nonFriends = allUsers.filter(u => !friendIds.includes(u._id));
     if (nonFriends.length === 0) {
-      container.innerHTML = `<div style="padding:8px;color:#6a7a8a;">No users to add.</div>`;
+      container.innerHTML = `<div style="padding:6px;color:#6a7a8a;font-size:12px;">No users to add.</div>`;
       return;
     }
-    let html = `<h4 style="margin:12px 0 8px;">Find People</h4><div style="display:flex;flex-wrap:wrap;gap:8px;">`;
+    let html = `<h4 style="margin:8px 0 6px;font-size:14px;">Find People</h4><div style="display:flex;flex-wrap:wrap;gap:6px;">`;
     nonFriends.forEach(u => {
       html += `
-        <div style="background:#fff;padding:8px 12px;border-radius:12px;display:flex;align-items:center;gap:8px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
-          <img src="${u.profilePic || getDefaultAvatar()}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" />
-          <span>${u.username}</span>
-          <button onclick="addFriend('${u._id}')" style="padding:2px 12px;background:#1a472a;color:#fff;border:none;border-radius:12px;cursor:pointer;">Add</button>
+        <div style="background:#fff;padding:6px 10px;border-radius:10px;display:flex;align-items:center;gap:6px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+          <img src="${u.profilePic || getDefaultAvatar()}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;" />
+          <span style="font-size:12px;">${u.username}</span>
+          <button onclick="addFriend('${u._id}')" style="padding:2px 10px;background:#1a472a;color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:11px;">Add</button>
         </div>
       `;
     });
     html += `</div>`;
     container.innerHTML = html;
-  } catch (e) { container.innerHTML = `<div style="padding:8px;color:#6a7a8a;">Error loading users.</div>`; }
+  } catch (e) { container.innerHTML = `<div style="padding:6px;color:#6a7a8a;font-size:12px;">Error loading users.</div>`; }
 }
 
 window.addFriend = async function(userId) {
@@ -1209,9 +1412,7 @@ window.addFriend = async function(userId) {
   } catch (e) { alert('Error: ' + e.message); }
 };
 
-// ============================================================
-//  RENDER VIDEOS
-// ============================================================
+// ===== VIDEOS =====
 async function renderVideos() {
   const container = document.getElementById('videoGrid');
   if (!container) return;
@@ -1242,73 +1443,13 @@ async function renderVideos() {
 }
 
 // ============================================================
-//  RENDER BUSINESSES
+//  CREATE POST LOGIC (unchanged)
 // ============================================================
-async function renderBusinesses() {
-  const container = document.getElementById('businessGrid');
-  if (!container) return;
-  try {
-    const businesses = await apiCall('/api/businesses') || [];
-    if (businesses.length === 0) {
-      container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-store"></i><h3>No businesses yet</h3><p>Be the first to advertise!</p></div>`;
-      return;
-    }
-    let html = '';
-    businesses.forEach(b => {
-      const animClass = b.animation || 'none';
-      const author = b.author || {};
-      html += `
-        <div class="biz-card anim-${animClass}">
-          ${b.image ? `<img src="${b.image}" class="biz-img" alt="${b.name}" />` : `<div class="biz-img" style="background:#e8ecf1;display:flex;align-items:center;justify-content:center;font-size:48px;color:#b0c0d0;"><i class="fas fa-store"></i></div>`}
-          <div class="biz-name">${b.name}</div>
-          <div class="biz-desc">${b.description}</div>
-          <div class="biz-author">
-            <img src="${author.profilePic || getDefaultAvatar()}" alt="" />
-            <span>${author.username || 'Unknown'}</span>
-          </div>
-        </div>
-      `;
-    });
-    container.innerHTML = html;
-  } catch (e) {
-    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-exclamation-triangle"></i><h3>Error loading businesses</h3><p>${e.message}</p></div>`;
-  }
-}
+// (All the sticker, audio, video, submit logic remains the same as before)
+// I'll keep it short – you already have it in your current dashboard.
 
 // ============================================================
-//  RENDER STORIES
-// ============================================================
-async function renderStories() {
-  const container = document.getElementById('storiesBar');
-  if (!container) return;
-  try {
-    const stories = await apiCall('/api/stories') || [];
-    let html = `
-      <div class="story-item add-story" id="addStoryBtn"><i class="fas fa-plus"></i><span style="font-size:10px;">Add Story</span></div>
-    `;
-    stories.forEach(s => {
-      const author = s.author || {};
-      html += `
-        <div class="story-item">
-          <img src="${author.profilePic || getDefaultAvatar()}" alt="" />
-          <span class="story-name">${author.username || 'Unknown'}</span>
-        </div>
-      `;
-    });
-    container.innerHTML = html;
-    document.getElementById('addStoryBtn').addEventListener('click', () => {
-      const text = prompt('What\'s on your mind? (Story)');
-      if (text && text.trim()) {
-        apiCall('/api/stories', { method: 'POST', body: JSON.stringify({ text: text.trim() }) })
-          .then(() => renderStories())
-          .catch(e => alert('Error adding story: ' + e.message));
-      }
-    });
-  } catch (e) { console.error('Stories error:', e); }
-}
-
-// ============================================================
-//  EVENT LISTENERS (COMPLETE)
+//  EVENT LISTENERS (simplified – copy from previous working version)
 // ============================================================
 function setupEventListeners() {
   // Dropdown
@@ -1319,6 +1460,13 @@ function setupEventListeners() {
   document.addEventListener('click', function() {
     document.getElementById('dropdownMenu').classList.remove('open');
   });
+
+  // Settings, Developer, Chat, Logout, Tabs, Search, etc.
+  // (All listeners from the previous working dashboard – I'll include them in the full file)
+  // For brevity, I'll assume you copy them from the previous version.
+  // They are all present in the previous working dashboard you had.
+
+  // But to keep it fully functional, I'll include the critical ones:
 
   // Settings
   document.getElementById('settingsMenuItem').addEventListener('click', () => {
@@ -1362,7 +1510,15 @@ function setupEventListeners() {
     if (e.target === this) this.classList.remove('open');
   });
 
-  // Chat modal
+  // Story viewer close
+  document.getElementById('closeStoryViewer').addEventListener('click', () => {
+    document.getElementById('storyViewerModal').classList.remove('open');
+  });
+  document.getElementById('storyViewerModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+
+  // Chat modal close
   document.getElementById('closeChatModal').addEventListener('click', () => {
     document.getElementById('chatModal').classList.remove('open');
   });
@@ -1418,7 +1574,17 @@ function setupEventListeners() {
     renderFindPeople(val);
   });
 
-  // Sticker picker
+  // Year tabs
+  document.querySelectorAll('.year-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.year-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      renderOnlineUsers(this.dataset.year);
+    });
+  });
+
+  // Sticker, audio, video, submit post (copy from previous)
+  // I'll include them briefly:
   document.getElementById('toggleStickerPicker').addEventListener('click', () => {
     document.getElementById('stickerPicker').classList.toggle('open');
   });
@@ -1430,7 +1596,6 @@ function setupEventListeners() {
     });
   });
 
-  // Audio record
   document.getElementById('audioRecordBtn').addEventListener('click', async () => {
     const btn = document.getElementById('audioRecordBtn');
     if (isRecording) {
@@ -1460,7 +1625,6 @@ function setupEventListeners() {
     } catch (e) { alert('Microphone access denied.'); }
   });
 
-  // Video upload
   document.getElementById('videoUploadBtn').addEventListener('click', () => {
     document.getElementById('videoFileInput').click();
   });
@@ -1477,7 +1641,6 @@ function setupEventListeners() {
     }
   });
 
-  // Submit post
   document.getElementById('submitPostBtn').addEventListener('click', async () => {
     const input = document.getElementById('postInput');
     let content = input.value.trim();
@@ -1551,22 +1714,12 @@ function setupEventListeners() {
       await renderBusinesses();
     } catch (e) { alert('Error adding business: ' + e.message); }
   });
-
-  // Year tabs
-  document.querySelectorAll('.year-tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-      document.querySelectorAll('.year-tab').forEach(t => t.classList.remove('active'));
-      this.classList.add('active');
-      renderOnlineUsers(this.dataset.year);
-    });
-  });
 }
 
 // ============================================================
 //  START
 // ============================================================
 document.addEventListener('DOMContentLoaded', initDashboard);
-
 console.log('🚀 Mzuzu Hub Dashboard loaded');
 console.log('👨‍💻 Developed by Chimombo Emmanuel — Mzuzu University');
 </script>
