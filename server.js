@@ -13,17 +13,15 @@ const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_change_me';
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-// Log every request
+// Log all requests
 app.use((req, res, next) => {
   console.log(`📨 ${req.method} ${req.url}`);
   next();
 });
 
-// Data directory
 const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
 
-// Databases
 const usersDB = new Datastore({ filename: path.join(dataDir, 'users.db'), autoload: true });
 const postsDB = new Datastore({ filename: path.join(dataDir, 'posts.db'), autoload: true });
 const messagesDB = new Datastore({ filename: path.join(dataDir, 'messages.db'), autoload: true });
@@ -31,7 +29,6 @@ const storiesDB = new Datastore({ filename: path.join(dataDir, 'stories.db'), au
 const businessesDB = new Datastore({ filename: path.join(dataDir, 'businesses.db'), autoload: true });
 const friendshipsDB = new Datastore({ filename: path.join(dataDir, 'friendships.db'), autoload: true });
 
-// Promisify
 const { promisify } = require('util');
 const findUsers = promisify(usersDB.find.bind(usersDB));
 const findOneUser = promisify(usersDB.findOne.bind(usersDB));
@@ -57,29 +54,23 @@ const insertFriendship = promisify(friendshipsDB.insert.bind(friendshipsDB));
 const updateFriendship = promisify(friendshipsDB.update.bind(friendshipsDB));
 const findOneFriendship = promisify(friendshipsDB.findOne.bind(friendshipsDB));
 
-// Auth middleware
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
-  if (!token) {
-    console.log('❌ No token');
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.userId = decoded.userId;
     next();
-  } catch (err) {
-    console.log('❌ Invalid token:', err.message);
+  } catch {
     res.status(401).json({ error: 'Invalid token' });
   }
 };
 
-// ===== AUTH ROUTES =====
+// ===== AUTH =====
 app.post('/api/register', async (req, res) => {
   const { username, email, password, yearOfStudy, profilePic } = req.body;
-  console.log('📝 Register attempt:', username, email);
+  console.log('📝 Register:', username, email);
   if (!username || !email || !password || !yearOfStudy) {
-    console.log('❌ Missing fields');
     return res.status(400).json({ error: 'All fields mandatory' });
   }
   try {
@@ -115,25 +106,18 @@ app.post('/api/register', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
-  console.log('🔑 Login attempt:', email);
+  console.log('🔑 Login:', email);
   try {
     const user = await findOneUser({ email });
-    if (!user) {
-      console.log('❌ User not found');
+    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+    if (!bcrypt.compareSync(password, user.password)) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    const match = bcrypt.compareSync(password, user.password);
-    if (!match) {
-      console.log('❌ Password mismatch');
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-    console.log('✅ Login success:', user.username);
     await updateUser({ _id: user._id }, { $set: { isOnline: true, lastSeen: new Date().toISOString() } });
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
     const { password: pwd, ...userData } = user;
     res.json({ token, user: userData });
   } catch (err) {
-    console.error('❌ Login error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -447,7 +431,7 @@ app.post('/api/businesses', authenticate, async (req, res) => {
 // ===== SERVE STATIC =====
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Fallback to index.html for any non‑API route
+// Catch-all: serve index.html for any non-API route (SPA fallback)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
