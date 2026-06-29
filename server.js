@@ -607,10 +607,79 @@ app.delete('/api/businesses/:bizId', authenticate, async (req, res) => {
   }
 });
 
+// ===== REELS (NEW) =====
+app.get('/api/reels', async (req, res) => {
+  try {
+    const pexelsKey = process.env.PEXELS_API_KEY;
+    let videos = [];
+
+    if (pexelsKey) {
+      const response = await fetch('https://api.pexels.com/videos/popular?per_page=10', {
+        headers: { 'Authorization': pexelsKey }
+      });
+      const data = await response.json();
+      if (data.videos) {
+        videos = data.videos.map(v => ({
+          id: v.id,
+          title: v.user?.name || 'Untitled',
+          videoUrl: v.video_files?.find(f => f.quality === 'hd')?.link || v.video_files[0].link,
+          thumbnail: v.image,
+          duration: v.duration,
+          likes: Math.floor(Math.random() * 1000) + 10
+        }));
+      }
+    }
+
+    // Fallback if no API key or fetch failed
+    if (videos.length === 0) {
+      videos = [
+        {
+          id: '1',
+          title: 'Sunset Lake',
+          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
+          duration: 30,
+          likes: 42
+        },
+        {
+          id: '2',
+          title: 'City Traffic',
+          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
+          duration: 25,
+          likes: 78
+        },
+        {
+          id: '3',
+          title: 'Nature Walk',
+          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
+          duration: 20,
+          likes: 125
+        }
+      ];
+    }
+
+    res.json(videos);
+  } catch (err) {
+    // Fallback to mock
+    res.json([
+      {
+        id: '1',
+        title: 'Demo Reel',
+        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
+        duration: 30,
+        likes: 99
+      }
+    ]);
+  }
+});
+
 // ===== SERVE STATIC =====
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Catch-all: serve index.html for any non-API route (SPA fallback)
+// Catch-all: serve index.html for any non-API route
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
