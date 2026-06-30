@@ -10,22 +10,19 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_change_me';
 
-// ===== Middleware =====
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Log all requests
 app.use((req, res, next) => {
   console.log(`📨 ${req.method} ${req.url}`);
   next();
 });
 
-// ===== Data directory =====
 const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
 
-// ===== Databases (NeDB) =====
+// Databases
 const usersDB = new Datastore({ filename: path.join(dataDir, 'users.db'), autoload: true });
 const postsDB = new Datastore({ filename: path.join(dataDir, 'posts.db'), autoload: true });
 const messagesDB = new Datastore({ filename: path.join(dataDir, 'messages.db'), autoload: true });
@@ -34,7 +31,7 @@ const businessesDB = new Datastore({ filename: path.join(dataDir, 'businesses.db
 const friendshipsDB = new Datastore({ filename: path.join(dataDir, 'friendships.db'), autoload: true });
 const notificationsDB = new Datastore({ filename: path.join(dataDir, 'notifications.db'), autoload: true });
 
-// ===== Promisified helpers =====
+// Helper: exec promise
 const execPromise = (cursor) => {
   return new Promise((resolve, reject) => {
     cursor.exec((err, docs) => {
@@ -315,7 +312,7 @@ app.post('/api/friends/request', authenticate, async (req, res) => {
       createdAt: new Date().toISOString()
     };
     await insertFriendship(friendship);
-    // Create notification
+    // Notification
     const user = await findOneUser({ _id: req.userId });
     await insertNotification({
       to: to,
@@ -465,10 +462,9 @@ app.post('/api/posts/:postId/like', authenticate, async (req, res) => {
     if (idx > -1) post.likes.splice(idx, 1);
     else post.likes.push(req.userId);
     await updatePost({ _id: req.params.postId }, { $set: { likes: post.likes } });
-    // Notification for like
-    const user = await findOneUser({ _id: req.userId });
-    const postAuthor = await findOneUser({ _id: post.author });
+    // Notification
     if (post.author !== req.userId) {
+      const user = await findOneUser({ _id: req.userId });
       await insertNotification({
         to: post.author,
         from: req.userId,
@@ -499,7 +495,7 @@ app.post('/api/posts/:postId/comment', authenticate, async (req, res) => {
     };
     post.comments.push(comment);
     await updatePost({ _id: req.params.postId }, { $set: { comments: post.comments } });
-    // Notification for comment
+    // Notification
     if (post.author !== req.userId) {
       await insertNotification({
         to: post.author,
@@ -517,7 +513,7 @@ app.post('/api/posts/:postId/comment', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  MESSAGES (with attachments)
+//  MESSAGES (with attachments and notifications)
 // ============================================================
 app.get('/api/messages/:userId', authenticate, async (req, res) => {
   const { userId } = req.params;
@@ -540,14 +536,14 @@ app.post('/api/messages', authenticate, async (req, res) => {
     from: req.userId,
     to,
     content: content || '',
-    type: type || 'text', // text, image, audio, document
+    type: type || 'text',
     data: data || null,
     read: false,
     createdAt: new Date().toISOString()
   };
   try {
     const newMsg = await insertMessage(msg);
-    // Notification for new message (if not from self)
+    // Notification
     if (to !== req.userId) {
       const user = await findOneUser({ _id: req.userId });
       await insertNotification({
@@ -641,7 +637,7 @@ app.delete('/api/stories/:storyId', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  BUSINESSES
+//  BUSINESSES (no payment fields)
 // ============================================================
 app.get('/api/businesses', authenticate, async (req, res) => {
   try {
@@ -703,7 +699,14 @@ app.delete('/api/businesses/:bizId', authenticate, async (req, res) => {
 app.get('/api/notifications', authenticate, async (req, res) => {
   try {
     const notifs = await findNotifications({ to: req.userId }).sort({ createdAt: -1 });
-    res.json(notifs);
+    const populated = await Promise.all(notifs.map(async (n) => {
+      if (n.from) {
+        const user = await findOneUser({ _id: n.from });
+        n.from = user ? { _id: user._id, username: user.username, profilePic: user.profilePic } : null;
+      }
+      return n;
+    }));
+    res.json(populated);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -719,7 +722,7 @@ app.post('/api/notifications/read', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  TELEVISION (only Cartoon, News, Music – removed Football)
+//  TELEVISION
 // ============================================================
 app.get('/api/tv/channels', (req, res) => {
   const channels = [
@@ -727,21 +730,21 @@ app.get('/api/tv/channels', (req, res) => {
       id: 'cartoon',
       name: '📺 Tom & Jerry Marathon',
       type: 'kids',
-      streamUrl: 'https://www.youtube.com/embed/9NnLsHv_yf0?autoplay=0&rel=0',
+      streamUrl: 'https://www.youtube.com/embed/9NnLsHv_yf0?autoplay=0&rel=0&enablejsapi=1',
       thumbnail: 'https://img.icons8.com/color/96/000000/cartoon.png'
     },
     {
       id: 'news',
       name: '📰 Al Jazeera English',
       type: 'news',
-      streamUrl: 'https://www.youtube.com/embed/ZCOYhQOJSTU?autoplay=0&rel=0',
+      streamUrl: 'https://www.youtube.com/embed/ZCOYhQOJSTU?autoplay=0&rel=0&enablejsapi=1',
       thumbnail: 'https://img.icons8.com/color/96/000000/news.png'
     },
     {
       id: 'music',
       name: '🎵 Lofi Hip Hop',
       type: 'music',
-      streamUrl: 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&rel=0',
+      streamUrl: 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&rel=0&enablejsapi=1',
       thumbnail: 'https://img.icons8.com/color/96/000000/music.png'
     }
   ];
@@ -755,7 +758,4 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ============================================================
-//  START SERVER
-// ============================================================
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
