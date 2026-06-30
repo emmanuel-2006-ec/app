@@ -10,12 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family: "Inter", sans-serif;
-      background: #f0f2f5;
-      color: #1a1a2e;
-      min-height: 100vh;
-    }
+    body { font-family:"Inter",sans-serif; background:#f0f2f5; color:#1a1a2e; min-height:100vh; }
     ::-webkit-scrollbar { width:6px; }
     ::-webkit-scrollbar-track { background:#e8ecf1; }
     ::-webkit-scrollbar-thumb { background:#1a472a; border-radius:8px; }
@@ -30,9 +25,7 @@
       top:0; z-index:100;
       box-shadow: 0 4px 20px rgba(0,0,0,0.20);
     }
-    .dash-header .brand {
-      display:flex; align-items:center; gap:12px; color:#fff;
-    }
+    .dash-header .brand { display:flex; align-items:center; gap:12px; color:#fff; }
     .dash-header .brand .logo-small {
       display:flex; align-items:center; justify-content:center;
       width:36px; height:36px;
@@ -240,15 +233,9 @@
       width:32px; height:32px; border-radius:50%; object-fit:cover;
     }
     .post-card .post-header .post-user { flex:1; }
-    .post-card .post-header .post-user .pname {
-      font-weight:600; font-size:13px;
-    }
-    .post-card .post-header .post-user .ptime {
-      font-size:10px; color:#8a9aaa;
-    }
-    .post-card .post-content {
-      font-size:14px; line-height:1.5; margin-bottom:4px;
-    }
+    .post-card .post-header .post-user .pname { font-weight:600; font-size:13px; }
+    .post-card .post-header .post-user .ptime { font-size:10px; color:#8a9aaa; }
+    .post-card .post-content { font-size:14px; line-height:1.5; margin-bottom:4px; }
     .post-card .post-content .sticker-display {
       font-size:40px; display:block; text-align:center;
     }
@@ -525,9 +512,7 @@
     .chat-modal .chat-header-user h4 { font-size:15px; }
 
     .story-viewer .modal-box { max-width:400px; text-align:center; }
-    .story-viewer .story-text {
-      font-size:20px; padding:20px 0; line-height:1.6;
-    }
+    .story-viewer .story-text { font-size:20px; padding:20px 0; line-height:1.6; }
     .story-viewer .story-author {
       display:flex; align-items:center; justify-content:center; gap:8px;
       font-size:14px; color:#6a7a8a;
@@ -545,11 +530,38 @@
       background:#e8ecf1; padding:2px 10px; border-radius:16px;
       font-size:11px; font-weight:500;
     }
-    .empty-state {
-      text-align:center; padding:30px 20px; color:#6a7a8a;
-    }
+    .empty-state { text-align:center; padding:30px 20px; color:#6a7a8a; }
     .empty-state i { font-size:40px; color:#b0c0d0; margin-bottom:8px; }
     .empty-state h3 { font-size:16px; color:#3a4a5a; }
+
+    /* Television specific */
+    .tv-container { display:flex; gap:20px; flex-wrap:wrap; }
+    .tv-channels {
+      width:200px; flex-shrink:0;
+      background:#fff; border-radius:12px; padding:12px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    }
+    .tv-channels .channel-item {
+      display:flex; align-items:center; gap:10px;
+      padding:8px 12px; border-radius:8px;
+      cursor:pointer; transition:background 0.2s;
+      margin-bottom:4px;
+    }
+    .tv-channels .channel-item:hover { background:#f0f4f8; }
+    .tv-channels .channel-item.active { background:#1a472a; color:#fff; }
+    .tv-channels .channel-item.active img { filter:brightness(10); }
+    .tv-channels .channel-item img { width:24px; height:24px; }
+    .tv-player {
+      flex:1; min-width:280px;
+      background:#000; border-radius:12px; overflow:hidden;
+      box-shadow:0 2px 8px rgba(0,0,0,0.04);
+      aspect-ratio:16/9;
+    }
+    .tv-player iframe { width:100%; height:100%; border:none; }
+    @media (max-width:600px) {
+      .tv-channels { width:100%; }
+      .tv-player { aspect-ratio:4/3; }
+    }
 
     .mobile-nav {
       display:none; position:fixed; bottom:0; left:0; right:0;
@@ -635,6 +647,7 @@
     <button class="tab-btn" data-tab="chats"><i class="fas fa-comment-dots"></i> <span>Chats</span></button>
     <button class="tab-btn" data-tab="videos"><i class="fas fa-video"></i> <span>Videos</span></button>
     <button class="tab-btn" data-tab="reels"><i class="fas fa-play-circle"></i> <span>Reels</span></button>
+    <button class="tab-btn" data-tab="television"><i class="fas fa-tv"></i> <span>Television</span></button>
     <button class="tab-btn" data-tab="businesses"><i class="fas fa-store"></i> <span>Businesses</span></button>
   </nav>
 
@@ -699,8 +712,16 @@
 
       <!-- REELS -->
       <div class="tab-panel" id="tab-reels">
-        <div id="reelsContainer" style="max-width:500px;margin:0 auto;padding:0 10px;">
-          <!-- Reels will be injected here -->
+        <div id="reelsContainer" style="max-width:500px;margin:0 auto;padding:0 10px;"></div>
+      </div>
+
+      <!-- TELEVISION -->
+      <div class="tab-panel" id="tab-television">
+        <div class="tv-container">
+          <div class="tv-channels" id="tvChannelsList"></div>
+          <div class="tv-player" id="tvPlayerContainer">
+            <iframe id="tvPlayer" src="https://www.youtube.com/embed/LNk0TqBbnBo?autoplay=0&rel=0" allowfullscreen></iframe>
+          </div>
         </div>
       </div>
 
@@ -760,6 +781,7 @@
     <button class="mnav-item" data-tab="chats"><i class="fas fa-comment-dots"></i> Chats</button>
     <button class="mnav-item" data-tab="videos"><i class="fas fa-video"></i> Videos</button>
     <button class="mnav-item" data-tab="reels"><i class="fas fa-play-circle"></i> Reels</button>
+    <button class="mnav-item" data-tab="television"><i class="fas fa-tv"></i> Television</button>
     <button class="mnav-item" data-tab="businesses"><i class="fas fa-store"></i> Biz</button>
   </div>
 </div>
@@ -902,6 +924,7 @@ let recordedAudioBlob = null;
 let recordedAudioDuration = '0:05';
 let uploadedVideoData = null;
 let mediaRecorder = null, audioChunks = [], isRecording = false;
+let selectedChannelId = null;
 
 // ============================================================
 //  DASHBOARD INIT
@@ -965,7 +988,8 @@ async function refreshAll() {
       renderFriends(),
       renderPendingRequests(),
       renderFindPeople(),
-      renderReels()   // <-- ADDED REELS
+      renderReels(),
+      renderTelevision()
     ]);
   } catch (e) { console.error('Refresh error:', e); }
 }
@@ -1304,7 +1328,7 @@ async function renderChatMessages(userId) {
 }
 
 // ============================================================
-//  RENDER FRIENDS (with error handling)
+//  RENDER FRIENDS
 // ============================================================
 async function renderFriends(search = '') {
   const container = document.getElementById('friendsGrid');
@@ -1450,7 +1474,7 @@ async function renderVideos() {
 }
 
 // ============================================================
-//  NEW: RENDER REELS
+//  RENDER REELS
 // ============================================================
 async function renderReels() {
   const container = document.getElementById('reelsContainer');
@@ -1465,13 +1489,7 @@ async function renderReels() {
     reels.forEach((reel, index) => {
       html += `
         <div class="reel-item" data-index="${index}" style="position:relative;margin-bottom:20px;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
-          <video
-            playsinline
-            muted
-            preload="metadata"
-            style="width:100%;height:auto;max-height:600px;object-fit:cover;display:block;background:#000;"
-            poster="${reel.thumbnail || ''}"
-          >
+          <video playsinline muted preload="metadata" style="width:100%;height:auto;max-height:600px;object-fit:cover;display:block;background:#000;" poster="${reel.thumbnail || ''}">
             <source src="${reel.videoUrl}" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
@@ -1489,25 +1507,20 @@ async function renderReels() {
     });
     container.innerHTML = html;
 
-    // Autoplay on scroll
     const videos = container.querySelectorAll('video');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         const video = entry.target;
         if (entry.isIntersecting) {
           video.play().catch(() => {});
-          videos.forEach(v => {
-            if (v !== video) v.pause();
-          });
+          videos.forEach(v => { if (v !== video) v.pause(); });
         } else {
           video.pause();
         }
       });
     }, { threshold: 0.5 });
-
     videos.forEach(video => observer.observe(video));
 
-    // Like button
     container.querySelectorAll('.reel-like-btn').forEach(btn => {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -1527,7 +1540,6 @@ async function renderReels() {
       });
     });
 
-    // Play first video if visible
     setTimeout(() => {
       const firstVideo = container.querySelector('video');
       if (firstVideo) {
@@ -1539,6 +1551,56 @@ async function renderReels() {
     }, 300);
   } catch (e) {
     container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error loading reels</h3><p>${e.message}</p></div>`;
+  }
+}
+
+// ============================================================
+//  RENDER TELEVISION
+// ============================================================
+async function renderTelevision() {
+  const container = document.getElementById('tvChannelsList');
+  const player = document.getElementById('tvPlayer');
+  if (!container) return;
+  try {
+    const channels = await apiCall('/api/tv/channels');
+    if (!channels || channels.length === 0) {
+      container.innerHTML = `<div class="empty-state"><i class="fas fa-tv"></i><h3>No channels available</h3></div>`;
+      return;
+    }
+    let html = '';
+    channels.forEach(ch => {
+      const active = ch.id === selectedChannelId ? 'active' : '';
+      html += `
+        <div class="channel-item ${active}" data-id="${ch.id}">
+          <img src="${ch.thumbnail || 'https://img.icons8.com/color/96/000000/tv.png'}" alt="" />
+          <span style="font-size:13px;font-weight:500;">${ch.name}</span>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+
+    if (!selectedChannelId && channels.length > 0) {
+      selectedChannelId = channels[0].id;
+    }
+    const selected = channels.find(ch => ch.id === selectedChannelId);
+    if (selected) {
+      player.src = selected.streamUrl + '&autoplay=0';
+    }
+
+    container.querySelectorAll('.channel-item').forEach(el => {
+      el.addEventListener('click', function() {
+        const id = this.dataset.id;
+        selectedChannelId = id;
+        const ch = channels.find(c => c.id === id);
+        if (ch) {
+          player.src = ch.streamUrl + '&autoplay=0';
+          container.querySelectorAll('.channel-item').forEach(item => item.classList.remove('active'));
+          this.classList.add('active');
+        }
+      });
+    });
+  } catch (e) {
+    container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error loading channels</h3><p>${e.message}</p></div>`;
   }
 }
 
@@ -1770,7 +1832,7 @@ function setupEventListeners() {
     window.location.href = '/index.html';
   });
 
-  // Tabs – including Reels
+  // Tabs
   document.querySelectorAll('.tab-btn, .mnav-item').forEach(btn => {
     btn.addEventListener('click', function() {
       const tab = this.dataset.tab;
@@ -1785,7 +1847,8 @@ function setupEventListeners() {
       }
       if (tab === 'chats') renderChatList();
       if (tab === 'videos') renderVideos();
-      if (tab === 'reels') renderReels();   // <-- NEW
+      if (tab === 'reels') renderReels();
+      if (tab === 'television') renderTelevision();
       if (tab === 'businesses') renderBusinesses();
     });
   });
