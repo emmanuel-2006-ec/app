@@ -10,19 +10,22 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_change_me';
 
+// ===== Middleware =====
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Log all requests
 app.use((req, res, next) => {
   console.log(`📨 ${req.method} ${req.url}`);
   next();
 });
 
+// ===== Data directory =====
 const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
 
-// Databases
+// ===== Databases (NeDB) =====
 const usersDB = new Datastore({ filename: path.join(dataDir, 'users.db'), autoload: true });
 const postsDB = new Datastore({ filename: path.join(dataDir, 'posts.db'), autoload: true });
 const messagesDB = new Datastore({ filename: path.join(dataDir, 'messages.db'), autoload: true });
@@ -31,7 +34,7 @@ const businessesDB = new Datastore({ filename: path.join(dataDir, 'businesses.db
 const friendshipsDB = new Datastore({ filename: path.join(dataDir, 'friendships.db'), autoload: true });
 const notificationsDB = new Datastore({ filename: path.join(dataDir, 'notifications.db'), autoload: true });
 
-// Helper: exec promise
+// ===== Promisified helpers =====
 const execPromise = (cursor) => {
   return new Promise((resolve, reject) => {
     cursor.exec((err, docs) => {
@@ -722,7 +725,7 @@ app.post('/api/notifications/read', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  TELEVISION
+//  TELEVISION (UPDATED with Africanews)
 // ============================================================
 app.get('/api/tv/channels', (req, res) => {
   const channels = [
@@ -734,10 +737,10 @@ app.get('/api/tv/channels', (req, res) => {
       thumbnail: 'https://img.icons8.com/color/96/000000/cartoon.png'
     },
     {
-      id: 'news',
-      name: '📰 Al Jazeera English',
+      id: 'africanews',
+      name: '🌍 Africanews',
       type: 'news',
-      streamUrl: 'https://www.youtube.com/embed/ZCOYhQOJSTU?autoplay=0&rel=0&enablejsapi=1',
+      streamUrl: 'https://www.youtube.com/embed/live_stream?channel=UC1yA6SAx2KfFm7hD0zB9w2Q&autoplay=0&rel=0&enablejsapi=1',
       thumbnail: 'https://img.icons8.com/color/96/000000/news.png'
     },
     {
@@ -758,4 +761,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// ============================================================
+//  START SERVER
+// ============================================================
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
