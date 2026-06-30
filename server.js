@@ -10,17 +10,22 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_change_me';
 
+// ===== Middleware =====
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
+app.use(express.static(path.join(__dirname, 'public')));
 
+// Log all requests
 app.use((req, res, next) => {
   console.log(`📨 ${req.method} ${req.url}`);
   next();
 });
 
+// ===== Data directory =====
 const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
 
+// ===== Databases (NeDB) =====
 const usersDB = new Datastore({ filename: path.join(dataDir, 'users.db'), autoload: true });
 const postsDB = new Datastore({ filename: path.join(dataDir, 'posts.db'), autoload: true });
 const messagesDB = new Datastore({ filename: path.join(dataDir, 'messages.db'), autoload: true });
@@ -28,7 +33,7 @@ const storiesDB = new Datastore({ filename: path.join(dataDir, 'stories.db'), au
 const businessesDB = new Datastore({ filename: path.join(dataDir, 'businesses.db'), autoload: true });
 const friendshipsDB = new Datastore({ filename: path.join(dataDir, 'friendships.db'), autoload: true });
 
-// Helper: exec promise
+// ===== Promisified helpers =====
 const execPromise = (cursor) => {
   return new Promise((resolve, reject) => {
     cursor.exec((err, docs) => {
@@ -38,7 +43,6 @@ const execPromise = (cursor) => {
   });
 };
 
-// Find with sort
 const findPostsSorted = (query, sort) => {
   const cursor = postsDB.find(query);
   if (sort) cursor.sort(sort);
@@ -170,6 +174,7 @@ const findOneFriendship = (query) => new Promise((resolve, reject) => {
   });
 });
 
+// ===== Auth middleware =====
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
@@ -182,13 +187,15 @@ const authenticate = (req, res, next) => {
   }
 };
 
-// ===== HELPERS =====
+// ===== Helper: auto-delete after 15 hours =====
 const isOlderThan15Hours = (dateStr) => {
   const age = Date.now() - new Date(dateStr).getTime();
   return age > 15 * 60 * 60 * 1000;
 };
 
-// ===== AUTH =====
+// ============================================================
+//  AUTH ROUTES
+// ============================================================
 app.post('/api/register', async (req, res) => {
   const { username, email, password, yearOfStudy, profilePic } = req.body;
   if (!username || !email || !password || !yearOfStudy) {
@@ -236,7 +243,9 @@ app.post('/api/logout', authenticate, async (req, res) => {
   res.json({ message: 'Logged out' });
 });
 
-// ===== USERS =====
+// ============================================================
+//  USERS
+// ============================================================
 app.get('/api/users', authenticate, async (req, res) => {
   try {
     const users = await findUsers({ _id: { $ne: req.userId } });
@@ -258,7 +267,9 @@ app.put('/api/profile', authenticate, async (req, res) => {
   }
 });
 
-// ===== FRIENDSHIPS =====
+// ============================================================
+//  FRIENDSHIPS
+// ============================================================
 app.post('/api/friends/request', authenticate, async (req, res) => {
   const { to } = req.body;
   if (!to) return res.status(400).json({ error: 'Recipient required' });
@@ -342,7 +353,9 @@ app.get('/api/friends/pending', authenticate, async (req, res) => {
   }
 });
 
-// ===== POSTS =====
+// ============================================================
+//  POSTS
+// ============================================================
 app.get('/api/posts', authenticate, async (req, res) => {
   try {
     let posts = await findPostsSorted({}, { createdAt: -1 });
@@ -446,7 +459,9 @@ app.post('/api/posts/:postId/comment', authenticate, async (req, res) => {
   }
 });
 
-// ===== MESSAGES =====
+// ============================================================
+//  MESSAGES
+// ============================================================
 app.get('/api/messages/:userId', authenticate, async (req, res) => {
   const { userId } = req.params;
   try {
@@ -495,7 +510,9 @@ app.delete('/api/messages/:msgId', authenticate, async (req, res) => {
   }
 });
 
-// ===== STORIES =====
+// ============================================================
+//  STORIES
+// ============================================================
 app.get('/api/stories', authenticate, async (req, res) => {
   try {
     let stories = await findStoriesSorted({}, { createdAt: -1 });
@@ -552,7 +569,9 @@ app.delete('/api/stories/:storyId', authenticate, async (req, res) => {
   }
 });
 
-// ===== BUSINESSES =====
+// ============================================================
+//  BUSINESSES
+// ============================================================
 app.get('/api/businesses', authenticate, async (req, res) => {
   try {
     const businesses = await findBusinessesSorted({}, { createdAt: -1 });
@@ -607,7 +626,9 @@ app.delete('/api/businesses/:bizId', authenticate, async (req, res) => {
   }
 });
 
-// ===== REELS =====
+// ============================================================
+//  REELS (updated with working fallback videos)
+// ============================================================
 app.get('/api/reels', async (req, res) => {
   try {
     const pexelsKey = process.env.PEXELS_API_KEY;
@@ -630,48 +651,89 @@ app.get('/api/reels', async (req, res) => {
       }
     }
 
+    // Fallback with multiple working sample videos
     if (videos.length === 0) {
       videos = [
-        { id: '1', title: 'Sunset Lake', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', thumbnail: '', duration: 30, likes: 42 },
-        { id: '2', title: 'City Traffic', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', thumbnail: '', duration: 25, likes: 78 },
-        { id: '3', title: 'Nature Walk', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', thumbnail: '', duration: 20, likes: 125 }
+        {
+          id: '1',
+          title: 'Sunset Lake',
+          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
+          duration: 30,
+          likes: 42
+        },
+        {
+          id: '2',
+          title: 'City Traffic',
+          videoUrl: 'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4',
+          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
+          duration: 25,
+          likes: 78
+        },
+        {
+          id: '3',
+          title: 'Nature Walk',
+          videoUrl: 'https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_1mb.mp4',
+          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
+          duration: 20,
+          likes: 125
+        },
+        {
+          id: '4',
+          title: 'Ocean Waves',
+          videoUrl: 'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
+          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
+          duration: 15,
+          likes: 56
+        }
       ];
     }
+
     res.json(videos);
   } catch (err) {
+    // Ultimate fallback
     res.json([
-      { id: '1', title: 'Demo Reel', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', thumbnail: '', duration: 30, likes: 99 }
+      {
+        id: '1',
+        title: 'Demo Reel',
+        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
+        duration: 30,
+        likes: 99
+      }
     ]);
   }
 });
 
-// ===== TELEVISION CHANNELS =====
+// ============================================================
+//  TELEVISION (updated with working YouTube embeds)
+// ============================================================
 app.get('/api/tv/channels', (req, res) => {
   const channels = [
     {
       id: 'football',
-      name: '⚽ Football (World Cup)',
+      name: '⚽ Football (Highlights)',
       type: 'sports',
-      streamUrl: 'https://www.youtube.com/embed/LNk0TqBbnBo?autoplay=0&rel=0',
+      streamUrl: 'https://www.youtube.com/embed/3JZ_D3ELwOQ?autoplay=0&rel=0',
       thumbnail: 'https://img.icons8.com/color/96/000000/football2.png'
     },
     {
       id: 'cartoon',
-      name: '📺 Cartoons (24/7)',
+      name: '📺 Cartoons (Tom & Jerry)',
       type: 'kids',
-      streamUrl: 'https://www.youtube.com/embed/2X5cU7k4P8E?autoplay=0&rel=0',
+      streamUrl: 'https://www.youtube.com/embed/pG4UjH2pAKE?autoplay=0&rel=0',
       thumbnail: 'https://img.icons8.com/color/96/000000/cartoon.png'
     },
     {
       id: 'news',
-      name: '📰 News Channel',
+      name: '📰 News (BBC)',
       type: 'news',
       streamUrl: 'https://www.youtube.com/embed/5XpR8VbPDJg?autoplay=0&rel=0',
       thumbnail: 'https://img.icons8.com/color/96/000000/news.png'
     },
     {
       id: 'music',
-      name: '🎵 Music TV',
+      name: '🎵 Music TV (Live)',
       type: 'music',
       streamUrl: 'https://www.youtube.com/embed/7NtK-4Zcy_s?autoplay=0&rel=0',
       thumbnail: 'https://img.icons8.com/color/96/000000/music.png'
@@ -680,11 +742,16 @@ app.get('/api/tv/channels', (req, res) => {
   res.json(channels);
 });
 
-// ===== SERVE STATIC =====
-app.use(express.static(path.join(__dirname, 'public')));
-
+// ============================================================
+//  SERVE FRONTEND
+// ============================================================
+// The static middleware above serves files from /public
+// For any other route, serve index.html (SPA fallback)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// ============================================================
+//  START SERVER
+// ============================================================
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
