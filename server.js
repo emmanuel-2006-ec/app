@@ -651,7 +651,6 @@ app.get('/api/reels', async (req, res) => {
       }
     }
 
-    // Fallback with multiple working sample videos
     if (videos.length === 0) {
       videos = [
         {
@@ -691,7 +690,6 @@ app.get('/api/reels', async (req, res) => {
 
     res.json(videos);
   } catch (err) {
-    // Ultimate fallback
     res.json([
       {
         id: '1',
@@ -706,36 +704,36 @@ app.get('/api/reels', async (req, res) => {
 });
 
 // ============================================================
-//  TELEVISION (updated with working YouTube embeds)
+//  TELEVISION (UPDATED with working channels)
 // ============================================================
 app.get('/api/tv/channels', (req, res) => {
   const channels = [
     {
       id: 'football',
-      name: '⚽ Football (Highlights)',
+      name: '⚽ Football Highlights',
       type: 'sports',
       streamUrl: 'https://www.youtube.com/embed/3JZ_D3ELwOQ?autoplay=0&rel=0',
       thumbnail: 'https://img.icons8.com/color/96/000000/football2.png'
     },
     {
       id: 'cartoon',
-      name: '📺 Cartoons (Tom & Jerry)',
+      name: '📺 Tom & Jerry',
       type: 'kids',
       streamUrl: 'https://www.youtube.com/embed/pG4UjH2pAKE?autoplay=0&rel=0',
       thumbnail: 'https://img.icons8.com/color/96/000000/cartoon.png'
     },
     {
       id: 'news',
-      name: '📰 News (BBC)',
+      name: '📰 News (France 24)',
       type: 'news',
-      streamUrl: 'https://www.youtube.com/embed/5XpR8VbPDJg?autoplay=0&rel=0',
+      streamUrl: 'https://www.youtube.com/embed/1sQhwMFa5oE?autoplay=0&rel=0',
       thumbnail: 'https://img.icons8.com/color/96/000000/news.png'
     },
     {
       id: 'music',
-      name: '🎵 Music TV (Live)',
+      name: '🎵 Classical Music',
       type: 'music',
-      streamUrl: 'https://www.youtube.com/embed/7NtK-4Zcy_s?autoplay=0&rel=0',
+      streamUrl: 'https://www.youtube.com/embed/4bSx0WQ0cFc?autoplay=0&rel=0',
       thumbnail: 'https://img.icons8.com/color/96/000000/music.png'
     }
   ];
@@ -745,8 +743,6 @@ app.get('/api/tv/channels', (req, res) => {
 // ============================================================
 //  SERVE FRONTEND
 // ============================================================
-// The static middleware above serves files from /public
-// For any other route, serve index.html (SPA fallback)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
