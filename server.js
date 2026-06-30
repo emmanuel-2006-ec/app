@@ -32,6 +32,7 @@ const messagesDB = new Datastore({ filename: path.join(dataDir, 'messages.db'), 
 const storiesDB = new Datastore({ filename: path.join(dataDir, 'stories.db'), autoload: true });
 const businessesDB = new Datastore({ filename: path.join(dataDir, 'businesses.db'), autoload: true });
 const friendshipsDB = new Datastore({ filename: path.join(dataDir, 'friendships.db'), autoload: true });
+const notificationsDB = new Datastore({ filename: path.join(dataDir, 'notifications.db'), autoload: true });
 
 // ===== Promisified helpers =====
 const execPromise = (cursor) => {
@@ -174,6 +175,26 @@ const findOneFriendship = (query) => new Promise((resolve, reject) => {
   });
 });
 
+// Notifications
+const findNotifications = (query) => new Promise((resolve, reject) => {
+  notificationsDB.find(query).exec((err, docs) => {
+    if (err) reject(err);
+    else resolve(docs);
+  });
+});
+const insertNotification = (doc) => new Promise((resolve, reject) => {
+  notificationsDB.insert(doc, (err, newDoc) => {
+    if (err) reject(err);
+    else resolve(newDoc);
+  });
+});
+const updateNotification = (query, update) => new Promise((resolve, reject) => {
+  notificationsDB.update(query, update, {}, (err, num) => {
+    if (err) reject(err);
+    else resolve(num);
+  });
+});
+
 // ===== Auth middleware =====
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -187,7 +208,7 @@ const authenticate = (req, res, next) => {
   }
 };
 
-// ===== Helper: auto-delete after 15 hours =====
+// ===== Helper: auto-delete for stories only =====
 const isOlderThan15Hours = (dateStr) => {
   const age = Date.now() - new Date(dateStr).getTime();
   return age > 15 * 60 * 60 * 1000;
@@ -294,6 +315,16 @@ app.post('/api/friends/request', authenticate, async (req, res) => {
       createdAt: new Date().toISOString()
     };
     await insertFriendship(friendship);
+    // Create notification
+    const user = await findOneUser({ _id: req.userId });
+    await insertNotification({
+      to: to,
+      from: req.userId,
+      type: 'friend_request',
+      message: `${user.username} sent you a friend request`,
+      read: false,
+      createdAt: new Date().toISOString()
+    });
     res.json({ message: 'Friend request sent' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -307,6 +338,16 @@ app.post('/api/friends/accept', authenticate, async (req, res) => {
     const friendship = await findOneFriendship({ from, to: req.userId, status: 'pending' });
     if (!friendship) return res.status(404).json({ error: 'No pending request' });
     await updateFriendship({ _id: friendship._id }, { $set: { status: 'accepted' } });
+    // Notification
+    const user = await findOneUser({ _id: req.userId });
+    await insertNotification({
+      to: from,
+      from: req.userId,
+      type: 'friend_accept',
+      message: `${user.username} accepted your friend request`,
+      read: false,
+      createdAt: new Date().toISOString()
+    });
     res.json({ message: 'Friend added' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -354,20 +395,12 @@ app.get('/api/friends/pending', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  POSTS
+//  POSTS (no auto-delete)
 // ============================================================
 app.get('/api/posts', authenticate, async (req, res) => {
   try {
-    let posts = await findPostsSorted({}, { createdAt: -1 });
-    const toKeep = [];
-    for (const post of posts) {
-      if (isOlderThan15Hours(post.createdAt)) {
-        await removePost({ _id: post._id });
-      } else {
-        toKeep.push(post);
-      }
-    }
-    const populated = await Promise.all(toKeep.map(async (post) => {
+    const posts = await findPostsSorted({}, { createdAt: -1 });
+    const populated = await Promise.all(posts.map(async (post) => {
       const author = await findOneUser({ _id: post.author });
       if (author) post.author = { _id: author._id, username: author.username, profilePic: author.profilePic, yearOfStudy: author.yearOfStudy };
       if (post.comments && post.comments.length) {
@@ -432,6 +465,19 @@ app.post('/api/posts/:postId/like', authenticate, async (req, res) => {
     if (idx > -1) post.likes.splice(idx, 1);
     else post.likes.push(req.userId);
     await updatePost({ _id: req.params.postId }, { $set: { likes: post.likes } });
+    // Notification for like
+    const user = await findOneUser({ _id: req.userId });
+    const postAuthor = await findOneUser({ _id: post.author });
+    if (post.author !== req.userId) {
+      await insertNotification({
+        to: post.author,
+        from: req.userId,
+        type: 'like',
+        message: `${user.username} liked your post`,
+        read: false,
+        createdAt: new Date().toISOString()
+      });
+    }
     res.json({ likes: post.likes });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -453,6 +499,17 @@ app.post('/api/posts/:postId/comment', authenticate, async (req, res) => {
     };
     post.comments.push(comment);
     await updatePost({ _id: req.params.postId }, { $set: { comments: post.comments } });
+    // Notification for comment
+    if (post.author !== req.userId) {
+      await insertNotification({
+        to: post.author,
+        from: req.userId,
+        type: 'comment',
+        message: `${user.username} commented on your post: "${text}"`,
+        read: false,
+        createdAt: new Date().toISOString()
+      });
+    }
     res.json({ comments: post.comments });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -460,7 +517,7 @@ app.post('/api/posts/:postId/comment', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  MESSAGES
+//  MESSAGES (with attachments)
 // ============================================================
 app.get('/api/messages/:userId', authenticate, async (req, res) => {
   const { userId } = req.params;
@@ -478,16 +535,30 @@ app.get('/api/messages/:userId', authenticate, async (req, res) => {
 });
 
 app.post('/api/messages', authenticate, async (req, res) => {
-  const { to, content } = req.body;
+  const { to, content, type, data } = req.body;
   const msg = {
     from: req.userId,
     to,
-    content,
+    content: content || '',
+    type: type || 'text', // text, image, audio, document
+    data: data || null,
     read: false,
     createdAt: new Date().toISOString()
   };
   try {
     const newMsg = await insertMessage(msg);
+    // Notification for new message (if not from self)
+    if (to !== req.userId) {
+      const user = await findOneUser({ _id: req.userId });
+      await insertNotification({
+        to: to,
+        from: req.userId,
+        type: 'message',
+        message: `${user.username} sent you a message`,
+        read: false,
+        createdAt: new Date().toISOString()
+      });
+    }
     res.status(201).json(newMsg);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -511,7 +582,7 @@ app.delete('/api/messages/:msgId', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  STORIES
+//  STORIES (auto-delete after 15 hours)
 // ============================================================
 app.get('/api/stories', authenticate, async (req, res) => {
   try {
@@ -627,113 +698,50 @@ app.delete('/api/businesses/:bizId', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  REELS (updated with working fallback videos)
+//  NOTIFICATIONS
 // ============================================================
-app.get('/api/reels', async (req, res) => {
+app.get('/api/notifications', authenticate, async (req, res) => {
   try {
-    const pexelsKey = process.env.PEXELS_API_KEY;
-    let videos = [];
-
-    if (pexelsKey) {
-      const response = await fetch('https://api.pexels.com/videos/popular?per_page=10', {
-        headers: { 'Authorization': pexelsKey }
-      });
-      const data = await response.json();
-      if (data.videos) {
-        videos = data.videos.map(v => ({
-          id: v.id,
-          title: v.user?.name || 'Untitled',
-          videoUrl: v.video_files?.find(f => f.quality === 'hd')?.link || v.video_files[0].link,
-          thumbnail: v.image,
-          duration: v.duration,
-          likes: Math.floor(Math.random() * 1000) + 10
-        }));
-      }
-    }
-
-    if (videos.length === 0) {
-      videos = [
-        {
-          id: '1',
-          title: 'Sunset Lake',
-          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
-          duration: 30,
-          likes: 42
-        },
-        {
-          id: '2',
-          title: 'City Traffic',
-          videoUrl: 'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4',
-          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
-          duration: 25,
-          likes: 78
-        },
-        {
-          id: '3',
-          title: 'Nature Walk',
-          videoUrl: 'https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_1mb.mp4',
-          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
-          duration: 20,
-          likes: 125
-        },
-        {
-          id: '4',
-          title: 'Ocean Waves',
-          videoUrl: 'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
-          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
-          duration: 15,
-          likes: 56
-        }
-      ];
-    }
-
-    res.json(videos);
+    const notifs = await findNotifications({ to: req.userId }).sort({ createdAt: -1 });
+    res.json(notifs);
   } catch (err) {
-    res.json([
-      {
-        id: '1',
-        title: 'Demo Reel',
-        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
-        duration: 30,
-        likes: 99
-      }
-    ]);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/notifications/read', authenticate, async (req, res) => {
+  try {
+    await updateNotification({ to: req.userId, read: false }, { $set: { read: true } }, { multi: true });
+    res.json({ message: 'All notifications marked as read' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
 // ============================================================
-//  TELEVISION (UPDATED with working channels)
+//  TELEVISION (only Cartoon, News, Music – removed Football)
 // ============================================================
 app.get('/api/tv/channels', (req, res) => {
   const channels = [
     {
-      id: 'football',
-      name: '⚽ Football Highlights',
-      type: 'sports',
-      streamUrl: 'https://www.youtube.com/embed/3JZ_D3ELwOQ?autoplay=0&rel=0',
-      thumbnail: 'https://img.icons8.com/color/96/000000/football2.png'
-    },
-    {
       id: 'cartoon',
-      name: '📺 Tom & Jerry',
+      name: '📺 Tom & Jerry Marathon',
       type: 'kids',
-      streamUrl: 'https://www.youtube.com/embed/pG4UjH2pAKE?autoplay=0&rel=0',
+      streamUrl: 'https://www.youtube.com/embed/9NnLsHv_yf0?autoplay=0&rel=0',
       thumbnail: 'https://img.icons8.com/color/96/000000/cartoon.png'
     },
     {
       id: 'news',
-      name: '📰 News (France 24)',
+      name: '📰 Al Jazeera English',
       type: 'news',
-      streamUrl: 'https://www.youtube.com/embed/1sQhwMFa5oE?autoplay=0&rel=0',
+      streamUrl: 'https://www.youtube.com/embed/ZCOYhQOJSTU?autoplay=0&rel=0',
       thumbnail: 'https://img.icons8.com/color/96/000000/news.png'
     },
     {
       id: 'music',
-      name: '🎵 Classical Music',
+      name: '🎵 Lofi Hip Hop',
       type: 'music',
-      streamUrl: 'https://www.youtube.com/embed/4bSx0WQ0cFc?autoplay=0&rel=0',
+      streamUrl: 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&rel=0',
       thumbnail: 'https://img.icons8.com/color/96/000000/music.png'
     }
   ];
