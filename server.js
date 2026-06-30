@@ -607,7 +607,7 @@ app.delete('/api/businesses/:bizId', authenticate, async (req, res) => {
   }
 });
 
-// ===== REELS (NEW) =====
+// ===== REELS =====
 app.get('/api/reels', async (req, res) => {
   try {
     const pexelsKey = process.env.PEXELS_API_KEY;
@@ -630,56 +630,59 @@ app.get('/api/reels', async (req, res) => {
       }
     }
 
-    // Fallback if no API key or fetch failed
     if (videos.length === 0) {
       videos = [
-        {
-          id: '1',
-          title: 'Sunset Lake',
-          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
-          duration: 30,
-          likes: 42
-        },
-        {
-          id: '2',
-          title: 'City Traffic',
-          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
-          duration: 25,
-          likes: 78
-        },
-        {
-          id: '3',
-          title: 'Nature Walk',
-          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-          thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
-          duration: 20,
-          likes: 125
-        }
+        { id: '1', title: 'Sunset Lake', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', thumbnail: '', duration: 30, likes: 42 },
+        { id: '2', title: 'City Traffic', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', thumbnail: '', duration: 25, likes: 78 },
+        { id: '3', title: 'Nature Walk', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', thumbnail: '', duration: 20, likes: 125 }
       ];
     }
-
     res.json(videos);
   } catch (err) {
-    // Fallback to mock
     res.json([
-      {
-        id: '1',
-        title: 'Demo Reel',
-        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        thumbnail: 'https://img.icons8.com/color/96/000000/video.png',
-        duration: 30,
-        likes: 99
-      }
+      { id: '1', title: 'Demo Reel', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', thumbnail: '', duration: 30, likes: 99 }
     ]);
   }
+});
+
+// ===== TELEVISION CHANNELS =====
+app.get('/api/tv/channels', (req, res) => {
+  const channels = [
+    {
+      id: 'football',
+      name: '⚽ Football (World Cup)',
+      type: 'sports',
+      streamUrl: 'https://www.youtube.com/embed/LNk0TqBbnBo?autoplay=0&rel=0',
+      thumbnail: 'https://img.icons8.com/color/96/000000/football2.png'
+    },
+    {
+      id: 'cartoon',
+      name: '📺 Cartoons (24/7)',
+      type: 'kids',
+      streamUrl: 'https://www.youtube.com/embed/2X5cU7k4P8E?autoplay=0&rel=0',
+      thumbnail: 'https://img.icons8.com/color/96/000000/cartoon.png'
+    },
+    {
+      id: 'news',
+      name: '📰 News Channel',
+      type: 'news',
+      streamUrl: 'https://www.youtube.com/embed/5XpR8VbPDJg?autoplay=0&rel=0',
+      thumbnail: 'https://img.icons8.com/color/96/000000/news.png'
+    },
+    {
+      id: 'music',
+      name: '🎵 Music TV',
+      type: 'music',
+      streamUrl: 'https://www.youtube.com/embed/7NtK-4Zcy_s?autoplay=0&rel=0',
+      thumbnail: 'https://img.icons8.com/color/96/000000/music.png'
+    }
+  ];
+  res.json(channels);
 });
 
 // ===== SERVE STATIC =====
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Catch-all: serve index.html for any non-API route
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
