@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -225,18 +226,32 @@
     }
     .create-post-box .post-input-area {
       display:flex; align-items:center; gap:10px;
+      flex-wrap:wrap;
     }
     .create-post-box .post-input-area img {
       width:32px; height:32px; border-radius:50%; object-fit:cover;
     }
-    .create-post-box .post-input-area input {
+    .create-post-box .post-input-area textarea {
       flex:1; padding:8px 14px; border:2px solid #e8ecf1;
-      border-radius:30px; font-size:13px; outline:none;
+      border-radius:12px; font-size:13px; outline:none;
       background:#f8fafc;
+      font-family:inherit;
+      min-width:100px; min-height:40px; resize:vertical;
     }
-    .create-post-box .post-input-area input:focus { border-color:#1a472a; background:#fff; }
+    .create-post-box .post-input-area textarea:focus { border-color:#1a472a; background:#fff; }
+    .create-post-box .post-image-preview {
+      margin-top:8px; max-width:200px; max-height:150px; border-radius:8px; display:none;
+      position:relative;
+    }
+    .create-post-box .post-image-preview img { width:100%; height:auto; border-radius:8px; }
+    .create-post-box .post-image-preview button {
+      position:absolute; top:-8px; right:-8px;
+      background:#e74c3c; color:#fff; border:none; border-radius:50%;
+      width:24px; height:24px; font-size:12px; cursor:pointer;
+    }
     .post-tools {
       display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;
+      align-items:center;
     }
     .post-tools button {
       padding:4px 12px; border:none; border-radius:20px;
@@ -247,11 +262,13 @@
     .post-tools .sticker-btn { color:#f39c12; }
     .post-tools .audio-btn { color:#e74c3c; }
     .post-tools .video-btn { color:#3498db; }
+    .post-tools .image-btn { color:#8e44ad; }
     .post-tools .submit-post {
       background:linear-gradient(135deg, #1a472a, #2d7d3a);
       color:#fff; margin-left:auto;
     }
     .post-tools .submit-post:hover { box-shadow:0 4px 12px rgba(26,71,42,0.30); }
+
     .sticker-picker {
       display:none; gap:6px; flex-wrap:wrap; margin-top:8px;
       padding:8px; background:#f8fafc; border-radius:10px;
@@ -282,6 +299,9 @@
     .post-card .post-content { font-size:14px; line-height:1.5; margin-bottom:4px; }
     .post-card .post-content .sticker-display {
       font-size:40px; display:block; text-align:center;
+    }
+    .post-card .post-content .post-image {
+      max-width:100%; max-height:300px; border-radius:8px; margin-top:4px;
     }
     .post-card .post-content .audio-display {
       display:flex; align-items:center; gap:10px;
@@ -411,6 +431,15 @@
     .video-grid .video-card .video-info { padding:8px 10px; }
     .video-grid .video-card .video-info h4 { font-size:13px; font-weight:600; }
     .video-grid .video-card .video-info p { font-size:11px; color:#6a7a8a; }
+    .video-grid .video-card .video-actions {
+      display:flex; gap:8px; margin-top:4px;
+    }
+    .video-grid .video-card .video-actions button {
+      border:none; background:transparent; font-size:12px; font-weight:600;
+      color:#5a6a7a; cursor:pointer;
+    }
+    .video-grid .video-card .video-actions button.liked { color:#e74c3c; }
+    .video-grid .video-card .video-actions button.liked i { color:#e74c3c; }
 
     .business-grid {
       display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr));
@@ -578,14 +607,62 @@
       0%,100%{ opacity:1; }
       50%{ opacity:0.3; }
     }
-
     .chat-modal .chat-header-user {
-      display:flex; align-items:center; gap:10px; margin-bottom:8px;
+      display:flex; align-items:center; gap:10px; flex:1;
     }
     .chat-modal .chat-header-user img {
       width:32px; height:32px; border-radius:50%; object-fit:cover;
     }
     .chat-modal .chat-header-user h4 { font-size:15px; }
+
+    .call-btn {
+      background:none; border:none; font-size:18px; cursor:pointer;
+      color:#1a472a; padding:4px 8px; border-radius:8px;
+      transition:background 0.2s;
+    }
+    .call-btn:hover { background:#f0f4f8; }
+
+    #callOverlay {
+      display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+      background:#000; z-index:9999; flex-direction:column;
+      align-items:center; justify-content:center; color:#fff;
+    }
+    #callOverlay.active { display:flex; }
+    #callOverlay video { width:100%; height:auto; max-height:80%; background:#111; }
+    #localVideo {
+      position:absolute; bottom:20px; right:20px;
+      width:150px; height:100px; background:#333; border-radius:8px;
+      object-fit:cover;
+    }
+    #callOverlay .call-controls {
+      position:absolute; bottom:60px; display:flex; gap:40px;
+    }
+    #callOverlay .call-controls button {
+      border:none; border-radius:50%; width:60px; height:60px;
+      color:#fff; font-size:24px; cursor:pointer;
+    }
+    #callOverlay .call-controls .end-call { background:#e74c3c; }
+    #callOverlay .call-controls .end-call:hover { background:#c0392b; }
+    #incomingCallBox {
+      display:none; position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      background:rgba(0,0,0,0.85); padding:30px; border-radius:20px;
+      text-align:center; min-width:280px;
+    }
+    #incomingCallBox.show { display:block; }
+    #incomingCallBox h3 { font-size:20px; margin-bottom:8px; }
+    #incomingCallBox p { font-size:16px; color:#b0c0d0; }
+    #incomingCallBox .call-actions {
+      display:flex; gap:30px; margin-top:20px; justify-content:center;
+    }
+    #incomingCallBox .call-actions button {
+      border:none; border-radius:50%; width:60px; height:60px;
+      color:#fff; font-size:24px; cursor:pointer;
+    }
+    #incomingCallBox .call-actions .accept { background:#2ecc71; }
+    #incomingCallBox .call-actions .accept:hover { background:#27ae60; }
+    #incomingCallBox .call-actions .decline { background:#e74c3c; }
+    #incomingCallBox .call-actions .decline:hover { background:#c0392b; }
 
     .story-viewer .modal-box { max-width:400px; text-align:center; }
     .story-viewer .story-text { font-size:20px; padding:20px 0; line-height:1.6; }
@@ -597,32 +674,15 @@
       width:32px; height:32px; border-radius:50%; object-fit:cover;
     }
 
-    .tv-container { display:flex; gap:20px; flex-wrap:wrap; }
-    .tv-channels {
-      width:200px; flex-shrink:0;
-      background:#fff; border-radius:12px; padding:12px;
+    .entertainment-container {
+      background:#fff; border-radius:12px; overflow:hidden;
       box-shadow:0 2px 8px rgba(0,0,0,0.04);
     }
-    .tv-channels .channel-item {
-      display:flex; align-items:center; gap:10px;
-      padding:8px 12px; border-radius:8px;
-      cursor:pointer; transition:background 0.2s;
-      margin-bottom:4px;
+    .entertainment-container iframe {
+      width:100%; height:600px; border:none;
     }
-    .tv-channels .channel-item:hover { background:#f0f4f8; }
-    .tv-channels .channel-item.active { background:#1a472a; color:#fff; }
-    .tv-channels .channel-item.active img { filter:brightness(10); }
-    .tv-channels .channel-item img { width:24px; height:24px; }
-    .tv-player {
-      flex:1; min-width:280px;
-      background:#000; border-radius:12px; overflow:hidden;
-      box-shadow:0 2px 8px rgba(0,0,0,0.04);
-      aspect-ratio:16/9;
-    }
-    .tv-player iframe { width:100%; height:100%; border:none; }
-    @media (max-width:600px) {
-      .tv-channels { width:100%; }
-      .tv-player { aspect-ratio:4/3; }
+    @media (max-width:768px) {
+      .entertainment-container iframe { height:400px; }
     }
 
     .dev-content { padding:8px 0; }
@@ -732,7 +792,7 @@
     <button class="tab-btn" data-tab="friends"><i class="fas fa-users"></i> <span>Friends</span></button>
     <button class="tab-btn" data-tab="chats"><i class="fas fa-comment-dots"></i> <span>Chats</span></button>
     <button class="tab-btn" data-tab="videos"><i class="fas fa-video"></i> <span>Videos</span></button>
-    <button class="tab-btn" data-tab="television"><i class="fas fa-tv"></i> <span>Television</span></button>
+    <button class="tab-btn" data-tab="entertainment"><i class="fas fa-film"></i> <span>Entertainment</span></button>
     <button class="tab-btn" data-tab="businesses"><i class="fas fa-store"></i> <span>Businesses</span></button>
   </nav>
 
@@ -747,12 +807,17 @@
         <div class="create-post-box">
           <div class="post-input-area">
             <img id="postUserAvatar" src="" alt="avatar" />
-            <input type="text" id="postInput" placeholder="What's on your mind?" />
+            <textarea id="postInput" placeholder="What's on your mind?" rows="1"></textarea>
+          </div>
+          <div class="post-image-preview" id="postImagePreview">
+            <img id="postImagePreviewImg" src="" alt="Image preview" />
+            <button id="removePostImage">✕</button>
           </div>
           <div class="post-tools">
             <button class="sticker-btn" id="toggleStickerPicker"><i class="fas fa-smile"></i> Sticker</button>
             <button class="audio-btn" id="audioRecordBtn"><i class="fas fa-microphone"></i> Audio</button>
             <button class="video-btn" id="videoUploadBtn"><i class="fas fa-film"></i> Video</button>
+            <button class="image-btn" id="imageUploadBtn"><i class="fas fa-image"></i> Image</button>
             <button class="submit-post" id="submitPostBtn"><i class="fas fa-paper-plane"></i> Post</button>
           </div>
           <div class="sticker-picker" id="stickerPicker">
@@ -770,6 +835,7 @@
             <span class="sticker-emoji" data-sticker="🤝">🤝</span>
           </div>
           <input type="file" id="videoFileInput" accept="video/*" style="display:none;" />
+          <input type="file" id="imageFileInput" accept="image/*" style="display:none;" />
         </div>
         <div id="postsContainer"></div>
       </div>
@@ -794,13 +860,10 @@
         <div class="video-grid" id="videoGrid"></div>
       </div>
 
-      <!-- TELEVISION -->
-      <div class="tab-panel" id="tab-television">
-        <div class="tv-container">
-          <div class="tv-channels" id="tvChannelsList"></div>
-          <div class="tv-player" id="tvPlayerContainer">
-            <iframe id="tvPlayer" src="https://www.youtube.com/embed/9NnLsHv_yf0?autoplay=0&rel=0&enablejsapi=1" allowfullscreen></iframe>
-          </div>
+      <!-- ENTERTAINMENT -->
+      <div class="tab-panel" id="tab-entertainment">
+        <div class="entertainment-container">
+          <iframe id="entertainmentIframe" src="https://www.youtube.com/embed/?listType=user_uploads&list=Africanews" allowfullscreen></iframe>
         </div>
       </div>
 
@@ -859,7 +922,7 @@
     <button class="mnav-item" data-tab="friends"><i class="fas fa-users"></i> Friends</button>
     <button class="mnav-item" data-tab="chats"><i class="fas fa-comment-dots"></i> Chats</button>
     <button class="mnav-item" data-tab="videos"><i class="fas fa-video"></i> Videos</button>
-    <button class="mnav-item" data-tab="television"><i class="fas fa-tv"></i> Television</button>
+    <button class="mnav-item" data-tab="entertainment"><i class="fas fa-film"></i> Entertainment</button>
     <button class="mnav-item" data-tab="businesses"><i class="fas fa-store"></i> Biz</button>
   </div>
 </div>
@@ -935,7 +998,11 @@
         <img id="chatTargetAvatar" src="" alt="" />
         <h4 id="chatTargetName">User</h4>
       </div>
-      <button class="close-modal" id="closeChatModal">&times;</button>
+      <div>
+        <button class="call-btn" id="voiceCallBtn" title="Voice Call"><i class="fas fa-phone"></i></button>
+        <button class="call-btn" id="videoCallBtn" title="Video Call"><i class="fas fa-video"></i></button>
+        <button class="close-modal" id="closeChatModal">&times;</button>
+      </div>
     </div>
     <div class="chat-messages" id="chatMessages"></div>
     <div class="chat-input-row">
@@ -948,11 +1015,48 @@
   </div>
 </div>
 
+<!-- CALL OVERLAY -->
+<div id="callOverlay">
+  <video id="remoteVideo" autoplay playsinline></video>
+  <video id="localVideo" autoplay playsinline muted></video>
+  <div class="call-controls">
+    <button class="end-call" id="endCallBtn"><i class="fas fa-phone-slash"></i></button>
+  </div>
+  <div id="incomingCallBox">
+    <h3>📞 Incoming Call</h3>
+    <p id="callerName">Unknown</p>
+    <div class="call-actions">
+      <button class="accept" id="acceptCallBtn"><i class="fas fa-phone"></i></button>
+      <button class="decline" id="declineCallBtn"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ============================================================
-//  API HELPER
+//  FULL JAVASCRIPT – includes all features
 // ============================================================
 const API_BASE = '';
+let currentUser = null;
+let currentChatTarget = null;
+let currentYearFilter = 'all';
+let selectedSticker = null;
+let recordedAudioBlob = null;
+let recordedAudioDuration = '0:05';
+let uploadedVideoData = null;
+let uploadedImageData = null;
+let mediaRecorder = null, audioChunks = [], isRecording = false;
+let selectedChannelId = null;
+let notifications = [];
+let voiceRecorder = null, voiceChunks = [], isVoiceRecording = false;
+let socket = null;
+let peerConnection = null;
+let localStream = null;
+let remoteStream = null;
+let callActive = false;
+let incomingCallData = null;
+
+// ===== API HELPER =====
 async function apiCall(endpoint, options = {}) {
   const token = sessionStorage.getItem('token');
   const headers = {
@@ -972,9 +1076,7 @@ async function apiCall(endpoint, options = {}) {
   return text ? JSON.parse(text) : null;
 }
 
-// ============================================================
-//  HELPERS
-// ============================================================
+// ===== HELPERS =====
 function timeAgo(date) {
   const diff = Date.now() - new Date(date).getTime();
   const mins = Math.floor(diff / 60000);
@@ -994,24 +1096,7 @@ function getYearEmoji(year) {
   return map[year] || '🎓';
 }
 
-// ============================================================
-//  STATE
-// ============================================================
-let currentUser = null;
-let currentChatTarget = null;
-let currentYearFilter = 'all';
-let selectedSticker = null;
-let recordedAudioBlob = null;
-let recordedAudioDuration = '0:05';
-let uploadedVideoData = null;
-let mediaRecorder = null, audioChunks = [], isRecording = false;
-let selectedChannelId = null;
-let notifications = [];
-let voiceRecorder = null, voiceChunks = [], isVoiceRecording = false;
-
-// ============================================================
-//  DASHBOARD INIT
-// ============================================================
+// ===== DASHBOARD INIT =====
 async function initDashboard() {
   const token = sessionStorage.getItem('token');
   const userData = sessionStorage.getItem('user');
@@ -1024,9 +1109,16 @@ async function initDashboard() {
     currentUser = JSON.parse(userData);
     document.getElementById('dashAvatar').src = currentUser.profilePic || getDefaultAvatar();
     document.getElementById('postUserAvatar').src = currentUser.profilePic || getDefaultAvatar();
+    // Connect socket
+    socket = io(API_BASE || window.location.origin);
+    socket.emit('join', currentUser._id);
     await refreshAll();
     setupEventListeners();
     setInterval(refreshAll, 30000);
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
   } catch (error) {
     console.error('Dashboard init error:', error);
     if (error.message.includes('Unauthorized') || error.message.includes('Invalid token')) {
@@ -1071,7 +1163,6 @@ async function refreshAll() {
       renderFriends(),
       renderPendingRequests(),
       renderFindPeople(),
-      renderTelevision(),
       renderNotifications(),
       updateTabBadges()
     ]);
@@ -1079,8 +1170,12 @@ async function refreshAll() {
 }
 
 // ============================================================
-//  RENDER POSTS
+//  RENDER FUNCTIONS
 // ============================================================
+// (renderPosts, renderStories, renderFriends, renderPendingRequests, renderFindPeople,
+//  renderChatList, renderOnlineUsers, renderVideos, renderBusinesses, renderNotifications, renderTelevision (removed))
+
+// ===== RENDER POSTS =====
 async function renderPosts(containerId = 'postsContainer') {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -1092,6 +1187,8 @@ async function renderPosts(containerId = 'postsContainer') {
     }
     let html = '';
     posts.forEach(post => {
+      // Only show non-video posts on Home (video posts go to Videos tab)
+      if (post.type === 'video') return;
       const isLiked = post.likes && post.likes.includes(currentUser._id);
       const likeCount = post.likes ? post.likes.length : 0;
       const comments = post.comments || [];
@@ -1100,6 +1197,21 @@ async function renderPosts(containerId = 'postsContainer') {
       const pAvatar = author.profilePic || getDefaultAvatar();
       const pYear = author.yearOfStudy || '';
       const isOwner = post.author && post.author._id === currentUser._id;
+      let contentHtml = '';
+      if (post.type === 'sticker') contentHtml = `<span class="sticker-display">${post.content}</span>`;
+      else if (post.type === 'text') contentHtml = `<p>${post.content}</p>`;
+      else if (post.type === 'audio') {
+        contentHtml = `
+          <div class="audio-display">
+            <button onclick="playAudio('${post._id}')"><i class="fas fa-play"></i></button>
+            <span style="font-size:12px;font-weight:500;">🎵 Audio message</span>
+            <span style="font-size:11px;color:#6a7a8a;margin-left:auto;">${post.audioDuration || '0:05'}</span>
+          </div>
+        `;
+      }
+      if (post.imageUrl) {
+        contentHtml += `<img src="${post.imageUrl}" class="post-image" alt="image" />`;
+      }
       html += `
         <div class="post-card" data-postid="${post._id}">
           ${isOwner ? `<button class="delete-btn" onclick="deletePost('${post._id}')"><i class="fas fa-trash-alt"></i></button>` : ''}
@@ -1110,20 +1222,7 @@ async function renderPosts(containerId = 'postsContainer') {
               <div class="ptime">${timeAgo(post.createdAt)}</div>
             </div>
           </div>
-          <div class="post-content">
-            ${post.type === 'sticker' ? `<span class="sticker-display">${post.content}</span>` : ''}
-            ${post.type === 'text' ? `<p>${post.content}</p>` : ''}
-            ${post.type === 'audio' ? `
-              <div class="audio-display">
-                <button onclick="playAudio('${post._id}')"><i class="fas fa-play"></i></button>
-                <span style="font-size:12px;font-weight:500;">🎵 Audio message</span>
-                <span style="font-size:11px;color:#6a7a8a;margin-left:auto;">${post.audioDuration || '0:05'}</span>
-              </div>
-            ` : ''}
-            ${post.type === 'video' && post.videoUrl ? `
-              <video controls><source src="${post.videoUrl}" type="video/mp4" /></video>
-            ` : ''}
-          </div>
+          <div class="post-content">${contentHtml}</div>
           <div class="post-actions">
             <button class="${isLiked ? 'liked' : ''}" onclick="toggleLike('${post._id}')">
               <i class="fas fa-heart"></i> ${likeCount > 0 ? likeCount : ''} Like
@@ -1183,9 +1282,7 @@ window.toggleComments = function(postId) {
 
 window.playAudio = function(postId) { alert('🔊 Playing audio (simulated)'); };
 
-// ============================================================
-//  RENDER STORIES
-// ============================================================
+// ===== RENDER STORIES =====
 async function renderStories() {
   const container = document.getElementById('storiesBar');
   if (!container) return;
@@ -1240,9 +1337,7 @@ window.deleteStory = async function(storyId) {
   } catch (e) { alert('Error deleting story: ' + e.message); }
 };
 
-// ============================================================
-//  RENDER FRIENDS
-// ============================================================
+// ===== RENDER FRIENDS (unchanged) =====
 async function renderFriends(search = '') {
   const container = document.getElementById('friendsGrid');
   if (!container) return;
@@ -1354,20 +1449,18 @@ window.addFriend = async function(userId) {
   } catch (e) { alert('Error: ' + e.message); }
 };
 
-// ============================================================
-//  RENDER CHATS (only friends)
-// ============================================================
+// ===== RENDER CHATS (anyone) =====
 async function renderChatList() {
   const container = document.getElementById('chatList');
   if (!container) return;
   try {
-    const friends = await apiCall('/api/friends');
-    if (friends.length === 0) {
-      container.innerHTML = `<div class="empty-state"><i class="fas fa-comment-dots"></i><h3>No chats yet</h3><p>Add friends to start chatting!</p></div>`;
+    const users = await apiCall('/api/users');
+    if (users.length === 0) {
+      container.innerHTML = `<div class="empty-state"><i class="fas fa-comment-dots"></i><h3>No chats yet</h3><p>Start a conversation with someone!</p></div>`;
       return;
     }
     let html = '';
-    for (const u of friends) {
+    for (const u of users) {
       try {
         const msgs = await apiCall(`/api/messages/${u._id}`);
         const lastMsg = msgs && msgs.length > 0 ? msgs[msgs.length - 1] : null;
@@ -1404,14 +1497,12 @@ window.deleteLastMessage = async function(userId) {
   } catch (e) { alert('Error deleting message: ' + e.message); }
 };
 
-// ============================================================
-//  CHAT SYSTEM (with attachments and voice)
-// ============================================================
+// ===== CHAT SYSTEM =====
 window.openChat = async function(userId) {
   try {
-    const friends = await apiCall('/api/friends');
-    const target = friends.find(u => u._id === userId);
-    if (!target) return alert('User not found or not a friend');
+    const users = await apiCall('/api/users');
+    const target = users.find(u => u._id === userId);
+    if (!target) return alert('User not found');
     currentChatTarget = target;
     document.getElementById('chatTargetAvatar').src = target.profilePic || getDefaultAvatar();
     document.getElementById('chatTargetName').textContent = target.username;
@@ -1499,7 +1590,7 @@ document.getElementById('chatFileInput').addEventListener('change', async functi
   }
 });
 
-// Voice recording
+// Voice recording in chat
 document.getElementById('voiceRecordBtn').addEventListener('click', async function() {
   if (isVoiceRecording) {
     if (voiceRecorder) voiceRecorder.stop();
@@ -1526,9 +1617,7 @@ document.getElementById('voiceRecordBtn').addEventListener('click', async functi
   } catch (e) { alert('Microphone access denied.'); }
 });
 
-// ============================================================
-//  RENDER ONLINE USERS
-// ============================================================
+// ===== RENDER ONLINE USERS =====
 async function renderOnlineUsers(yearFilter = 'all') {
   currentYearFilter = yearFilter;
   const container = document.getElementById('onlineUserList');
@@ -1564,9 +1653,15 @@ async function renderOnlineUsers(yearFilter = 'all') {
   } catch (e) { container.innerHTML = `<div style="padding:12px;text-align:center;color:#6a7a8a;">Error loading users</div>`; }
 }
 
-// ============================================================
-//  RENDER VIDEOS
-// ============================================================
+document.querySelectorAll('.year-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.year-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    renderOnlineUsers(this.dataset.year);
+  });
+});
+
+// ===== RENDER VIDEOS =====
 async function renderVideos() {
   const container = document.getElementById('videoGrid');
   if (!container) return;
@@ -1578,27 +1673,44 @@ async function renderVideos() {
       return;
     }
     let html = '';
-    videos.forEach(p => {
+    for (const p of videos) {
       const author = p.author || {};
+      const isLiked = p.likes && p.likes.includes(currentUser._id);
+      const likeCount = p.likes ? p.likes.length : 0;
       html += `
         <div class="video-card">
           <video controls><source src="${p.videoUrl}" type="video/mp4" /></video>
           <div class="video-info">
-            <h4>${p.content.length > 30 ? p.content.slice(0,30)+'…' : p.content}</h4>
+            <h4>${p.content}</h4>
             <p>By ${author.username || 'Unknown'} • ${timeAgo(p.createdAt)}</p>
+            <div class="video-actions">
+              <button class="${isLiked ? 'liked' : ''}" onclick="toggleVideoLike('${p._id}')">
+                <i class="fas fa-heart"></i> ${likeCount > 0 ? likeCount : ''} Like
+              </button>
+              <button onclick="toggleVideoComments('${p._id}')"><i class="fas fa-comment"></i> ${p.comments ? p.comments.length : 0}</button>
+            </div>
           </div>
         </div>
       `;
-    });
+    }
     container.innerHTML = html;
   } catch (e) {
     container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-exclamation-triangle"></i><h3>Error loading videos</h3><p>${e.message}</p></div>`;
   }
 }
 
-// ============================================================
-//  RENDER BUSINESSES
-// ============================================================
+window.toggleVideoLike = async function(postId) {
+  try {
+    await apiCall(`/api/posts/${postId}/like`, { method: 'POST' });
+    await renderVideos();
+  } catch (e) { alert('Error: ' + e.message); }
+};
+
+window.toggleVideoComments = function(postId) {
+  alert('Comment feature coming soon for videos!');
+};
+
+// ===== RENDER BUSINESSES =====
 async function renderBusinesses() {
   const container = document.getElementById('businessGrid');
   if (!container) return;
@@ -1640,59 +1752,7 @@ window.deleteBusiness = async function(bizId) {
   } catch (e) { alert('Error deleting business: ' + e.message); }
 };
 
-// ============================================================
-//  RENDER TELEVISION
-// ============================================================
-async function renderTelevision() {
-  const container = document.getElementById('tvChannelsList');
-  const player = document.getElementById('tvPlayer');
-  if (!container) return;
-  try {
-    const channels = await apiCall('/api/tv/channels');
-    if (!channels || channels.length === 0) {
-      container.innerHTML = `<div class="empty-state"><i class="fas fa-tv"></i><h3>No channels available</h3></div>`;
-      return;
-    }
-    let html = '';
-    channels.forEach(ch => {
-      const active = ch.id === selectedChannelId ? 'active' : '';
-      html += `
-        <div class="channel-item ${active}" data-id="${ch.id}">
-          <img src="${ch.thumbnail || 'https://img.icons8.com/color/96/000000/tv.png'}" alt="" />
-          <span style="font-size:13px;font-weight:500;">${ch.name}</span>
-        </div>
-      `;
-    });
-    container.innerHTML = html;
-
-    if (!selectedChannelId && channels.length > 0) {
-      selectedChannelId = channels[0].id;
-    }
-    const selected = channels.find(ch => ch.id === selectedChannelId);
-    if (selected) {
-      player.src = selected.streamUrl + '&autoplay=0';
-    }
-
-    container.querySelectorAll('.channel-item').forEach(el => {
-      el.addEventListener('click', function() {
-        const id = this.dataset.id;
-        selectedChannelId = id;
-        const ch = channels.find(c => c.id === id);
-        if (ch) {
-          player.src = ch.streamUrl + '&autoplay=0';
-          container.querySelectorAll('.channel-item').forEach(item => item.classList.remove('active'));
-          this.classList.add('active');
-        }
-      });
-    });
-  } catch (e) {
-    container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error loading channels</h3><p>${e.message}</p></div>`;
-  }
-}
-
-// ============================================================
-//  NOTIFICATIONS
-// ============================================================
+// ===== RENDER NOTIFICATIONS =====
 async function renderNotifications() {
   try {
     const notifs = await apiCall('/api/notifications');
@@ -1739,16 +1799,14 @@ document.addEventListener('click', function() {
   document.getElementById('notifDropdown').classList.remove('open');
 });
 
-// ============================================================
-//  TAB BADGES
-// ============================================================
+// ===== TAB BADGES =====
 async function updateTabBadges() {
   try {
-    // Chats badge – unread messages
-    const friends = await apiCall('/api/friends');
+    // Chats badge – unread messages from all users
+    const users = await apiCall('/api/users');
     let unreadCount = 0;
-    for (const f of friends) {
-      const msgs = await apiCall(`/api/messages/${f._id}`);
+    for (const u of users) {
+      const msgs = await apiCall(`/api/messages/${u._id}`);
       const unread = msgs ? msgs.filter(m => m.to === currentUser._id && !m.read).length : 0;
       unreadCount += unread;
     }
@@ -1788,6 +1846,161 @@ function playSound() {
     }, 150);
   } catch(e) { /* silent fail */ }
 }
+
+// ============================================================
+//  SOCKET.IO – real-time notifications and calls
+// ============================================================
+if (socket) {
+  socket.on('new-notification', (data) => {
+    playSound();
+    renderNotifications();
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('Mzuzu Hub', { body: data.message, icon: '/favicon.ico' });
+    }
+  });
+
+  // Call signaling
+  socket.on('incoming-call', (data) => {
+    const { from, offer } = data;
+    // Show incoming call overlay
+    showIncomingCall(from, offer);
+  });
+
+  socket.on('call-answered', async (data) => {
+    const { from, answer } = data;
+    if (callActive && peerConnection) {
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+    }
+  });
+
+  socket.on('ice-candidate', async (data) => {
+    const { from, candidate } = data;
+    if (peerConnection) {
+      try {
+        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+      } catch (e) { console.error('Error adding ICE candidate:', e); }
+    }
+  });
+
+  socket.on('call-ended', () => {
+    endCall();
+  });
+}
+
+// ============================================================
+//  CALL FUNCTIONS
+// ============================================================
+const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
+async function startCall(video = true) {
+  if (!currentChatTarget) return;
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video });
+    peerConnection = new RTCPeerConnection(configuration);
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+    document.getElementById('localVideo').srcObject = localStream;
+
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+    socket.emit('call-user', { to: currentChatTarget._id, offer });
+
+    callActive = true;
+    document.getElementById('callOverlay').classList.add('active');
+    // Show remote video placeholder
+    document.getElementById('remoteVideo').srcObject = null;
+    document.getElementById('incomingCallBox').classList.remove('show');
+
+    peerConnection.ontrack = (event) => {
+      remoteStream = event.streams[0];
+      document.getElementById('remoteVideo').srcObject = remoteStream;
+    };
+
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit('ice-candidate', { to: currentChatTarget._id, candidate: event.candidate });
+      }
+    };
+  } catch (e) {
+    alert('Could not start call: ' + e.message);
+  }
+}
+
+function showIncomingCall(from, offer) {
+  const callerName = 'Unknown';
+  document.getElementById('callerName').textContent = callerName;
+  document.getElementById('incomingCallBox').classList.add('show');
+  document.getElementById('callOverlay').classList.add('active');
+  incomingCallData = { from, offer };
+  playSound(); // ringtone
+  // Play ringtone continuously (simplified)
+}
+
+document.getElementById('acceptCallBtn').addEventListener('click', async () => {
+  if (!incomingCallData) return;
+  const { from, offer } = incomingCallData;
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+    peerConnection = new RTCPeerConnection(configuration);
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+    document.getElementById('localVideo').srcObject = localStream;
+
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+    socket.emit('answer-call', { to: from, answer });
+
+    callActive = true;
+    document.getElementById('incomingCallBox').classList.remove('show');
+    document.getElementById('remoteVideo').srcObject = null;
+
+    peerConnection.ontrack = (event) => {
+      remoteStream = event.streams[0];
+      document.getElementById('remoteVideo').srcObject = remoteStream;
+    };
+
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit('ice-candidate', { to: from, candidate: event.candidate });
+      }
+    };
+  } catch (e) {
+    alert('Could not accept call: ' + e.message);
+  }
+});
+
+document.getElementById('declineCallBtn').addEventListener('click', () => {
+  if (incomingCallData) {
+    socket.emit('end-call', { to: incomingCallData.from });
+  }
+  endCall();
+});
+
+document.getElementById('endCallBtn').addEventListener('click', () => {
+  if (currentChatTarget) {
+    socket.emit('end-call', { to: currentChatTarget._id });
+  }
+  endCall();
+});
+
+function endCall() {
+  if (localStream) {
+    localStream.getTracks().forEach(track => track.stop());
+    localStream = null;
+  }
+  if (peerConnection) {
+    peerConnection.close();
+    peerConnection = null;
+  }
+  callActive = false;
+  document.getElementById('callOverlay').classList.remove('active');
+  document.getElementById('incomingCallBox').classList.remove('show');
+  document.getElementById('remoteVideo').srcObject = null;
+  document.getElementById('localVideo').srcObject = null;
+}
+
+// Voice and video call buttons
+document.getElementById('voiceCallBtn').addEventListener('click', () => startCall(false));
+document.getElementById('videoCallBtn').addEventListener('click', () => startCall(true));
 
 // ============================================================
 //  CREATE POST
@@ -1848,6 +2061,30 @@ document.getElementById('videoFileInput').addEventListener('change', function() 
   }
 });
 
+document.getElementById('imageUploadBtn').addEventListener('click', () => {
+  document.getElementById('imageFileInput').click();
+});
+document.getElementById('imageFileInput').addEventListener('change', function() {
+  if (this.files && this.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      uploadedImageData = e.target.result;
+      document.getElementById('postImagePreviewImg').src = uploadedImageData;
+      document.getElementById('postImagePreview').style.display = 'block';
+      document.getElementById('postInput').value = '📷 Image attached';
+      document.getElementById('imageUploadBtn').innerHTML = '<i class="fas fa-check-circle"></i> Image Ready';
+      document.getElementById('imageUploadBtn').style.color = '#2ecc71';
+    };
+    reader.readAsDataURL(this.files[0]);
+  }
+});
+document.getElementById('removePostImage').addEventListener('click', function() {
+  uploadedImageData = null;
+  document.getElementById('postImagePreview').style.display = 'none';
+  document.getElementById('imageUploadBtn').innerHTML = '<i class="fas fa-image"></i> Image';
+  document.getElementById('imageUploadBtn').style.color = '';
+});
+
 document.getElementById('submitPostBtn').addEventListener('click', async () => {
   const input = document.getElementById('postInput');
   let content = input.value.trim();
@@ -1855,6 +2092,7 @@ document.getElementById('submitPostBtn').addEventListener('click', async () => {
   let stickerType = null;
   let audioUrl = null;
   let videoUrl = null;
+  let imageUrl = null;
 
   if (selectedSticker) { type = 'sticker'; content = selectedSticker; stickerType = selectedSticker; }
   else if (recordedAudioBlob) {
@@ -1867,32 +2105,43 @@ document.getElementById('submitPostBtn').addEventListener('click', async () => {
   } else if (uploadedVideoData) {
     type = 'video';
     videoUrl = uploadedVideoData;
+  } else if (uploadedImageData) {
+    type = 'text'; // text with image
+    imageUrl = uploadedImageData;
   }
 
-  if (!content && type === 'text') { alert('Please write something or add media.'); return; }
+  if (!content && type === 'text' && !imageUrl) {
+    alert('Please write something or add media.');
+    return;
+  }
 
   try {
     await apiCall('/api/posts', {
       method: 'POST',
-      body: JSON.stringify({ content, type, stickerType, audioUrl, videoUrl, audioDuration: recordedAudioDuration })
+      body: JSON.stringify({ content, type, stickerType, audioUrl, videoUrl, imageUrl, audioDuration: recordedAudioDuration })
     });
     document.getElementById('postInput').value = '';
     selectedSticker = null;
     recordedAudioBlob = null;
     uploadedVideoData = null;
+    uploadedImageData = null;
+    document.getElementById('postImagePreview').style.display = 'none';
     document.getElementById('stickerPicker').classList.remove('open');
     document.getElementById('audioRecordBtn').innerHTML = '<i class="fas fa-microphone"></i> Audio';
     document.getElementById('audioRecordBtn').style.color = '';
     document.getElementById('videoUploadBtn').innerHTML = '<i class="fas fa-film"></i> Video';
     document.getElementById('videoUploadBtn').style.color = '';
+    document.getElementById('imageUploadBtn').innerHTML = '<i class="fas fa-image"></i> Image';
+    document.getElementById('imageUploadBtn').style.color = '';
     document.getElementById('videoFileInput').value = '';
+    document.getElementById('imageFileInput').value = '';
     await renderPosts();
     await renderVideos();
   } catch (e) { alert('Error creating post: ' + e.message); }
 });
 
 // ============================================================
-//  BUSINESS SUBMIT (free, no payment)
+//  BUSINESS SUBMIT
 // ============================================================
 document.getElementById('submitBizBtn').addEventListener('click', async () => {
   const name = document.getElementById('bizName').value.trim();
@@ -2019,8 +2268,8 @@ function setupEventListeners() {
       }
       if (tab === 'chats') renderChatList();
       if (tab === 'videos') renderVideos();
-      if (tab === 'television') renderTelevision();
       if (tab === 'businesses') renderBusinesses();
+      // Entertainment loads automatically via iframe src
     });
   });
 
@@ -2029,15 +2278,6 @@ function setupEventListeners() {
     const val = this.value;
     renderFriends(val);
     renderFindPeople(val);
-  });
-
-  // Year tabs
-  document.querySelectorAll('.year-tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-      document.querySelectorAll('.year-tab').forEach(t => t.classList.remove('active'));
-      this.classList.add('active');
-      renderOnlineUsers(this.dataset.year);
-    });
   });
 }
 
