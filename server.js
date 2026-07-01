@@ -10,7 +10,7 @@ const socketIo = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, { 
+const io = socketIo(server, {
   cors: { origin: '*' },
   transports: ['websocket', 'polling']
 });
@@ -403,7 +403,7 @@ app.get('/api/friends/pending', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  POSTS (no auto-delete)
+//  POSTS
 // ============================================================
 app.get('/api/posts', authenticate, async (req, res) => {
   try {
@@ -525,7 +525,7 @@ app.post('/api/posts/:postId/comment', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  MESSAGES (with attachments and notifications)
+//  MESSAGES
 // ============================================================
 app.get('/api/messages/:userId', authenticate, async (req, res) => {
   const { userId } = req.params;
@@ -649,7 +649,7 @@ app.delete('/api/stories/:storyId', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  BUSINESSES (no payment fields)
+//  BUSINESSES
 // ============================================================
 app.get('/api/businesses', authenticate, async (req, res) => {
   try {
