@@ -10,7 +10,10 @@ const socketIo = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, { cors: { origin: '*' } });
+const io = socketIo(server, { 
+  cors: { origin: '*' },
+  transports: ['websocket', 'polling']
+});
 
 const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_change_me';
@@ -320,7 +323,6 @@ app.post('/api/friends/request', authenticate, async (req, res) => {
       createdAt: new Date().toISOString()
     };
     await insertFriendship(friendship);
-    // Notification
     const user = await findOneUser({ _id: req.userId });
     await insertNotification({
       to: to,
@@ -344,7 +346,6 @@ app.post('/api/friends/accept', authenticate, async (req, res) => {
     const friendship = await findOneFriendship({ from, to: req.userId, status: 'pending' });
     if (!friendship) return res.status(404).json({ error: 'No pending request' });
     await updateFriendship({ _id: friendship._id }, { $set: { status: 'accepted' } });
-    // Notification
     const user = await findOneUser({ _id: req.userId });
     await insertNotification({
       to: from,
@@ -473,7 +474,6 @@ app.post('/api/posts/:postId/like', authenticate, async (req, res) => {
     if (idx > -1) post.likes.splice(idx, 1);
     else post.likes.push(req.userId);
     await updatePost({ _id: req.params.postId }, { $set: { likes: post.likes } });
-    // Notification
     if (post.author !== req.userId) {
       const user = await findOneUser({ _id: req.userId });
       await insertNotification({
@@ -507,7 +507,6 @@ app.post('/api/posts/:postId/comment', authenticate, async (req, res) => {
     };
     post.comments.push(comment);
     await updatePost({ _id: req.params.postId }, { $set: { comments: post.comments } });
-    // Notification
     if (post.author !== req.userId) {
       await insertNotification({
         to: post.author,
@@ -556,7 +555,6 @@ app.post('/api/messages', authenticate, async (req, res) => {
   };
   try {
     const newMsg = await insertMessage(msg);
-    // Notification
     if (to !== req.userId) {
       const user = await findOneUser({ _id: req.userId });
       await insertNotification({
@@ -736,7 +734,7 @@ app.post('/api/notifications/read', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  SOCKET.IO – join user room on connection
+//  SOCKET.IO – real-time events
 // ============================================================
 io.on('connection', (socket) => {
   console.log('🔌 New client connected:', socket.id);
@@ -747,7 +745,7 @@ io.on('connection', (socket) => {
     console.log(`User ${userId} joined their room`);
   });
 
-  // ===== Call signaling =====
+  // Call signaling
   socket.on('call-user', (data) => {
     const { to, offer } = data;
     io.to(`user_${to}`).emit('incoming-call', { from: socket.userId, offer });
