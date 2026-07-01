@@ -5,8 +5,13 @@ const jwt = require('jsonwebtoken');
 const Datastore = require('@seald-io/nedb');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
+const socketIo = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, { cors: { origin: '*' } });
+
 const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_change_me';
 
@@ -25,7 +30,7 @@ app.use((req, res, next) => {
 const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
 
-// ===== Databases (NeDB) =====
+// ===== Databases =====
 const usersDB = new Datastore({ filename: path.join(dataDir, 'users.db'), autoload: true });
 const postsDB = new Datastore({ filename: path.join(dataDir, 'posts.db'), autoload: true });
 const messagesDB = new Datastore({ filename: path.join(dataDir, 'messages.db'), autoload: true });
@@ -325,6 +330,7 @@ app.post('/api/friends/request', authenticate, async (req, res) => {
       read: false,
       createdAt: new Date().toISOString()
     });
+    io.to(`user_${to}`).emit('new-notification', { message: `${user.username} sent you a friend request` });
     res.json({ message: 'Friend request sent' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -348,6 +354,7 @@ app.post('/api/friends/accept', authenticate, async (req, res) => {
       read: false,
       createdAt: new Date().toISOString()
     });
+    io.to(`user_${from}`).emit('new-notification', { message: `${user.username} accepted your friend request` });
     res.json({ message: 'Friend added' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -422,7 +429,7 @@ app.get('/api/posts', authenticate, async (req, res) => {
 });
 
 app.post('/api/posts', authenticate, async (req, res) => {
-  const { content, type, stickerType, audioUrl, videoUrl, audioDuration } = req.body;
+  const { content, type, stickerType, audioUrl, videoUrl, imageUrl, audioDuration } = req.body;
   const post = {
     author: req.userId,
     content: content || '',
@@ -430,6 +437,7 @@ app.post('/api/posts', authenticate, async (req, res) => {
     stickerType: stickerType || null,
     audioUrl: audioUrl || null,
     videoUrl: videoUrl || null,
+    imageUrl: imageUrl || null,
     audioDuration: audioDuration || '0:05',
     likes: [],
     comments: [],
@@ -476,6 +484,7 @@ app.post('/api/posts/:postId/like', authenticate, async (req, res) => {
         read: false,
         createdAt: new Date().toISOString()
       });
+      io.to(`user_${post.author}`).emit('new-notification', { message: `${user.username} liked your post` });
     }
     res.json({ likes: post.likes });
   } catch (err) {
@@ -508,6 +517,7 @@ app.post('/api/posts/:postId/comment', authenticate, async (req, res) => {
         read: false,
         createdAt: new Date().toISOString()
       });
+      io.to(`user_${post.author}`).emit('new-notification', { message: `${user.username} commented on your post` });
     }
     res.json({ comments: post.comments });
   } catch (err) {
@@ -557,6 +567,7 @@ app.post('/api/messages', authenticate, async (req, res) => {
         read: false,
         createdAt: new Date().toISOString()
       });
+      io.to(`user_${to}`).emit('new-notification', { message: `${user.username} sent you a message` });
     }
     res.status(201).json(newMsg);
   } catch (err) {
@@ -725,33 +736,42 @@ app.post('/api/notifications/read', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  TELEVISION (UPDATED with Africanews)
+//  SOCKET.IO – join user room on connection
 // ============================================================
-app.get('/api/tv/channels', (req, res) => {
-  const channels = [
-    {
-      id: 'cartoon',
-      name: '📺 Tom & Jerry Marathon',
-      type: 'kids',
-      streamUrl: 'https://www.youtube.com/embed/9NnLsHv_yf0?autoplay=0&rel=0&enablejsapi=1',
-      thumbnail: 'https://img.icons8.com/color/96/000000/cartoon.png'
-    },
-    {
-      id: 'africanews',
-      name: '🌍 Africanews',
-      type: 'news',
-      streamUrl: 'https://www.youtube.com/embed/live_stream?channel=UC1yA6SAx2KfFm7hD0zB9w2Q&autoplay=0&rel=0&enablejsapi=1',
-      thumbnail: 'https://img.icons8.com/color/96/000000/news.png'
-    },
-    {
-      id: 'music',
-      name: '🎵 Lofi Hip Hop',
-      type: 'music',
-      streamUrl: 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&rel=0&enablejsapi=1',
-      thumbnail: 'https://img.icons8.com/color/96/000000/music.png'
-    }
-  ];
-  res.json(channels);
+io.on('connection', (socket) => {
+  console.log('🔌 New client connected:', socket.id);
+
+  socket.on('join', (userId) => {
+    socket.join(`user_${userId}`);
+    socket.userId = userId;
+    console.log(`User ${userId} joined their room`);
+  });
+
+  // ===== Call signaling =====
+  socket.on('call-user', (data) => {
+    const { to, offer } = data;
+    io.to(`user_${to}`).emit('incoming-call', { from: socket.userId, offer });
+    console.log(`📞 Call from ${socket.userId} to ${to}`);
+  });
+
+  socket.on('answer-call', (data) => {
+    const { to, answer } = data;
+    io.to(`user_${to}`).emit('call-answered', { from: socket.userId, answer });
+  });
+
+  socket.on('ice-candidate', (data) => {
+    const { to, candidate } = data;
+    io.to(`user_${to}`).emit('ice-candidate', { from: socket.userId, candidate });
+  });
+
+  socket.on('end-call', (data) => {
+    const { to } = data;
+    io.to(`user_${to}`).emit('call-ended', { from: socket.userId });
+  });
+
+  socket.on('disconnect', () => {
+    console.log('🔌 Client disconnected:', socket.id);
+  });
 });
 
 // ============================================================
@@ -764,4 +784,4 @@ app.get('*', (req, res) => {
 // ============================================================
 //  START SERVER
 // ============================================================
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
