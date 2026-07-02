@@ -731,46 +731,113 @@
 
     /* ===== CALL OVERLAY ===== */
     #callOverlay {
-      display:none; position:fixed; top:0; left:0; right:0; bottom:0;
-      background:#000; z-index:9999; flex-direction:column;
-      align-items:center; justify-content:center; color:#fff;
+      display:none;
+      position:fixed;
+      top:0; left:0; right:0; bottom:0;
+      background:#000;
+      z-index:9999;
+      color:#fff;
+      overflow:hidden;
     }
-    #callOverlay.active { display:flex; }
-    #callOverlay video { width:100%; height:auto; max-height:80%; background:#111; }
-    #localVideo {
-      position:absolute; bottom:20px; right:20px;
-      width:150px; height:100px; background:#333; border-radius:8px;
+    #callOverlay.active { display:block; }
+
+    #remoteVideo {
+      position:absolute;
+      top:0; left:0;
+      width:100%; height:100%;
       object-fit:cover;
+      background:#111;
     }
+
+    #localVideo {
+      position:absolute;
+      bottom:20px; right:20px;
+      width:150px; height:100px;
+      object-fit:cover;
+      border-radius:8px;
+      background:#333;
+      z-index:10;
+      border:2px solid rgba(255,255,255,0.2);
+    }
+
     #callOverlay .call-controls {
-      position:absolute; bottom:60px; display:flex; gap:40px;
+      position:absolute;
+      bottom:60px;
+      left:50%;
+      transform:translateX(-50%);
+      display:flex;
+      gap:40px;
+      z-index:20;
     }
     #callOverlay .call-controls button {
-      border:none; border-radius:50%; width:60px; height:60px;
-      color:#fff; font-size:24px; cursor:pointer;
+      border:none;
+      border-radius:50%;
+      width:60px; height:60px;
+      color:#fff;
+      font-size:24px;
+      cursor:pointer;
+      transition:transform 0.2s, background 0.2s;
     }
-    #callOverlay .call-controls .end-call { background:#e74c3c; }
-    #callOverlay .call-controls .end-call:hover { background:#c0392b; }
+    #callOverlay .call-controls .end-call {
+      background:#e74c3c;
+    }
+    #callOverlay .call-controls .end-call:hover {
+      background:#c0392b;
+      transform:scale(1.05);
+    }
+
     #incomingCallBox {
-      display:none; position:absolute; top:50%; left:50%;
+      display:none;
+      position:absolute;
+      top:50%; left:50%;
       transform:translate(-50%,-50%);
-      background:rgba(0,0,0,0.85); padding:30px; border-radius:20px;
-      text-align:center; min-width:280px;
+      background:rgba(0,0,0,0.85);
+      padding:30px 40px;
+      border-radius:20px;
+      text-align:center;
+      min-width:280px;
+      z-index:30;
+      border:1px solid rgba(255,255,255,0.1);
     }
     #incomingCallBox.show { display:block; }
-    #incomingCallBox h3 { font-size:20px; margin-bottom:8px; }
-    #incomingCallBox p { font-size:16px; color:#b0c0d0; }
+    #incomingCallBox h3 {
+      font-size:22px;
+      margin-bottom:8px;
+      color:#fff;
+    }
+    #incomingCallBox p {
+      font-size:16px;
+      color:#b0c0d0;
+      margin-bottom:16px;
+    }
     #incomingCallBox .call-actions {
-      display:flex; gap:30px; margin-top:20px; justify-content:center;
+      display:flex;
+      gap:30px;
+      justify-content:center;
     }
     #incomingCallBox .call-actions button {
-      border:none; border-radius:50%; width:60px; height:60px;
-      color:#fff; font-size:24px; cursor:pointer;
+      border:none;
+      border-radius:50%;
+      width:60px; height:60px;
+      color:#fff;
+      font-size:24px;
+      cursor:pointer;
+      transition:transform 0.2s;
     }
-    #incomingCallBox .call-actions .accept { background:#2ecc71; }
-    #incomingCallBox .call-actions .accept:hover { background:#27ae60; }
-    #incomingCallBox .call-actions .decline { background:#e74c3c; }
-    #incomingCallBox .call-actions .decline:hover { background:#c0392b; }
+    #incomingCallBox .call-actions .accept {
+      background:#2ecc71;
+    }
+    #incomingCallBox .call-actions .accept:hover {
+      background:#27ae60;
+      transform:scale(1.05);
+    }
+    #incomingCallBox .call-actions .decline {
+      background:#e74c3c;
+    }
+    #incomingCallBox .call-actions .decline:hover {
+      background:#c0392b;
+      transform:scale(1.05);
+    }
 
     /* ===== STORY VIEWER ===== */
     .story-viewer .modal-box { max-width:400px; text-align:center; }
@@ -892,7 +959,7 @@
     </div>
   </header>
 
-  <!-- Tabs (Entertainment removed) -->
+  <!-- Tabs -->
   <nav class="dash-tabs" id="dashTabs">
     <button class="tab-btn active" data-tab="home"><i class="fas fa-home"></i> <span>Home</span></button>
     <button class="tab-btn" data-tab="friends"><i class="fas fa-users"></i> <span>Friends</span></button>
@@ -1131,7 +1198,7 @@
 
 <script>
 // ============================================================
-//  FULL JAVASCRIPT – ALL FUNCTIONS PRESERVED
+//  FULL JAVASCRIPT
 // ============================================================
 const API_BASE = '';
 let currentUser = null;
@@ -1995,39 +2062,53 @@ function playSound() {
 }
 
 // ============================================================
-//  CALL FUNCTIONS
+//  CALL FUNCTIONS (FIXED)
 // ============================================================
-const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+const configuration = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' }
+  ]
+};
 
 async function startCall(video = true) {
   if (!currentChatTarget) return;
   try {
+    // Get local media
     localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video });
+    document.getElementById('localVideo').srcObject = localStream;
+    document.getElementById('localVideo').style.display = 'block';
+
+    // Create peer connection
     peerConnection = new RTCPeerConnection(configuration);
     localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-    document.getElementById('localVideo').srcObject = localStream;
 
+    // Handle remote stream
+    peerConnection.ontrack = (event) => {
+      remoteStream = event.streams[0];
+      document.getElementById('remoteVideo').srcObject = remoteStream;
+      document.getElementById('remoteVideo').style.display = 'block';
+    };
+
+    // Handle ICE candidates
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit('ice-candidate', { to: currentChatTarget._id, candidate: event.candidate });
+      }
+    };
+
+    // Create offer
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
     socket.emit('call-user', { to: currentChatTarget._id, offer });
 
     callActive = true;
     document.getElementById('callOverlay').classList.add('active');
-    document.getElementById('remoteVideo').srcObject = null;
     document.getElementById('incomingCallBox').classList.remove('show');
-
-    peerConnection.ontrack = (event) => {
-      remoteStream = event.streams[0];
-      document.getElementById('remoteVideo').srcObject = remoteStream;
-    };
-
-    peerConnection.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket.emit('ice-candidate', { to: currentChatTarget._id, candidate: event.candidate });
-      }
-    };
+    document.getElementById('remoteVideo').style.display = 'block';
   } catch (e) {
     alert('Could not start call: ' + e.message);
+    console.error(e);
   }
 }
 
@@ -2043,32 +2124,42 @@ document.getElementById('acceptCallBtn').addEventListener('click', async () => {
   if (!incomingCallData) return;
   const { from, offer } = incomingCallData;
   try {
+    // Get local media
     localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+    document.getElementById('localVideo').srcObject = localStream;
+    document.getElementById('localVideo').style.display = 'block';
+
+    // Create peer connection
     peerConnection = new RTCPeerConnection(configuration);
     localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-    document.getElementById('localVideo').srcObject = localStream;
 
+    // Handle remote stream
+    peerConnection.ontrack = (event) => {
+      remoteStream = event.streams[0];
+      document.getElementById('remoteVideo').srcObject = remoteStream;
+      document.getElementById('remoteVideo').style.display = 'block';
+    };
+
+    // Handle ICE candidates
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit('ice-candidate', { to: from, candidate: event.candidate });
+      }
+    };
+
+    // Set remote description (offer)
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    // Create answer
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
     socket.emit('answer-call', { to: from, answer });
 
     callActive = true;
     document.getElementById('incomingCallBox').classList.remove('show');
-    document.getElementById('remoteVideo').srcObject = null;
-
-    peerConnection.ontrack = (event) => {
-      remoteStream = event.streams[0];
-      document.getElementById('remoteVideo').srcObject = remoteStream;
-    };
-
-    peerConnection.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket.emit('ice-candidate', { to: from, candidate: event.candidate });
-      }
-    };
+    document.getElementById('remoteVideo').style.display = 'block';
   } catch (e) {
     alert('Could not accept call: ' + e.message);
+    console.error(e);
   }
 });
 
@@ -2099,7 +2190,9 @@ function endCall() {
   document.getElementById('callOverlay').classList.remove('active');
   document.getElementById('incomingCallBox').classList.remove('show');
   document.getElementById('remoteVideo').srcObject = null;
+  document.getElementById('remoteVideo').style.display = 'none';
   document.getElementById('localVideo').srcObject = null;
+  document.getElementById('localVideo').style.display = 'none';
 }
 
 document.getElementById('voiceCallBtn').addEventListener('click', () => startCall(false));
@@ -2379,7 +2472,7 @@ function setupEventListeners() {
 //  START
 // ============================================================
 document.addEventListener('DOMContentLoaded', initDashboard);
-console.log('🚀 Mzuzu Hub Dashboard loaded');
+console.log('🚀 Mzuzu Hub Dashboard loaded (fixed calls)');
 console.log('👨‍💻 Developed by Chimombo Emmanuel — Mzuzu University');
 </script>
 </body>
