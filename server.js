@@ -41,6 +41,7 @@ const storiesDB = new Datastore({ filename: path.join(dataDir, 'stories.db'), au
 const businessesDB = new Datastore({ filename: path.join(dataDir, 'businesses.db'), autoload: true });
 const friendshipsDB = new Datastore({ filename: path.join(dataDir, 'friendships.db'), autoload: true });
 const notificationsDB = new Datastore({ filename: path.join(dataDir, 'notifications.db'), autoload: true });
+const discussionsDB = new Datastore({ filename: path.join(dataDir, 'discussions.db'), autoload: true });
 
 // ===== Promisified helpers =====
 const execPromise = (cursor) => {
@@ -198,6 +199,32 @@ const insertNotification = (doc) => new Promise((resolve, reject) => {
 });
 const updateNotification = (query, update) => new Promise((resolve, reject) => {
   notificationsDB.update(query, update, {}, (err, num) => {
+    if (err) reject(err);
+    else resolve(num);
+  });
+});
+
+// Discussions
+const insertDiscussion = (doc) => new Promise((resolve, reject) => {
+  discussionsDB.insert(doc, (err, newDoc) => {
+    if (err) reject(err);
+    else resolve(newDoc);
+  });
+});
+const findOneDiscussion = (query) => new Promise((resolve, reject) => {
+  discussionsDB.findOne(query, (err, doc) => {
+    if (err) reject(err);
+    else resolve(doc);
+  });
+});
+const updateDiscussion = (query, update) => new Promise((resolve, reject) => {
+  discussionsDB.update(query, update, {}, (err, num) => {
+    if (err) reject(err);
+    else resolve(num);
+  });
+});
+const removeDiscussion = (query) => new Promise((resolve, reject) => {
+  discussionsDB.remove(query, {}, (err, num) => {
     if (err) reject(err);
     else resolve(num);
   });
@@ -734,6 +761,82 @@ app.post('/api/notifications/read', authenticate, async (req, res) => {
 });
 
 // ============================================================
+//  DISCUSSIONS (NEW)
+// ============================================================
+app.post('/api/discussions/create', authenticate, async (req, res) => {
+  const { friendIds } = req.body;
+  if (!friendIds || friendIds.length < 1 || friendIds.length > 10) {
+    return res.status(400).json({ error: 'Select 1–10 friends' });
+  }
+  // Verify all are friends
+  const friendships = await findFriendships({
+    $or: [
+      { from: req.userId, status: 'accepted' },
+      { to: req.userId, status: 'accepted' }
+    ]
+  });
+  const friendIdsSet = new Set(friendIds);
+  const allFriends = new Set();
+  friendships.forEach(f => {
+    const otherId = f.from === req.userId ? f.to : f.from;
+    if (friendIdsSet.has(otherId)) allFriends.add(otherId);
+  });
+  if (allFriends.size !== friendIds.length) {
+    return res.status(400).json({ error: 'Some users are not your friends' });
+  }
+  const roomId = 'room_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+  const room = {
+    roomId,
+    leader: req.userId,
+    participants: [req.userId, ...friendIds],
+    createdAt: new Date().toISOString(),
+    active: true
+  };
+  await insertDiscussion(room);
+  // Notify all participants
+  const user = await findOneUser({ _id: req.userId });
+  const msg = `${user.username} started a discussion!`;
+  for (const uid of friendIds) {
+    await insertNotification({
+      to: uid,
+      from: req.userId,
+      type: 'discussion_invite',
+      message: msg,
+      data: { roomId },
+      read: false,
+      createdAt: new Date().toISOString()
+    });
+    io.to(`user_${uid}`).emit('new-notification', { message: msg });
+  }
+  res.json({ roomId });
+});
+
+app.get('/api/discussions/:roomId', authenticate, async (req, res) => {
+  const room = await findOneDiscussion({ roomId: req.params.roomId });
+  if (!room) return res.status(404).json({ error: 'Room not found' });
+  if (!room.participants.includes(req.userId)) {
+    return res.status(403).json({ error: 'Not a participant' });
+  }
+  res.json(room);
+});
+
+app.post('/api/discussions/leave', authenticate, async (req, res) => {
+  const { roomId } = req.body;
+  const room = await findOneDiscussion({ roomId });
+  if (!room) return res.status(404).json({ error: 'Room not found' });
+  room.participants = room.participants.filter(id => id !== req.userId);
+  if (room.participants.length === 0) {
+    await removeDiscussion({ roomId });
+  } else {
+    if (room.leader === req.userId) {
+      room.leader = room.participants[0];
+    }
+    await updateDiscussion({ roomId }, { $set: { participants: room.participants, leader: room.leader } });
+  }
+  res.json({ message: 'Left discussion' });
+});
+
+// ============================================================
 //  SOCKET.IO – real-time events
 // ============================================================
 io.on('connection', (socket) => {
@@ -745,7 +848,7 @@ io.on('connection', (socket) => {
     console.log(`User ${userId} joined their room`);
   });
 
-  // Call signaling
+  // Call signaling (1‑to‑1)
   socket.on('call-user', (data) => {
     const { to, offer } = data;
     io.to(`user_${to}`).emit('incoming-call', { from: socket.userId, offer });
@@ -767,8 +870,42 @@ io.on('connection', (socket) => {
     io.to(`user_${to}`).emit('call-ended', { from: socket.userId });
   });
 
+  // ===== Discussion signaling =====
+  socket.on('discussion-join', (data) => {
+    const { roomId } = data;
+    socket.join(`discussion_${roomId}`);
+    socket.roomId = roomId;
+    console.log(`User ${socket.userId} joined discussion ${roomId}`);
+    io.to(`discussion_${roomId}`).emit('discussion-user-joined', { userId: socket.userId });
+  });
+
+  socket.on('discussion-offer', (data) => {
+    const { roomId, target, offer } = data;
+    io.to(`user_${target}`).emit('discussion-offer', { from: socket.userId, offer, roomId });
+  });
+
+  socket.on('discussion-answer', (data) => {
+    const { roomId, target, answer } = data;
+    io.to(`user_${target}`).emit('discussion-answer', { from: socket.userId, answer, roomId });
+  });
+
+  socket.on('discussion-ice', (data) => {
+    const { roomId, target, candidate } = data;
+    io.to(`user_${target}`).emit('discussion-ice', { from: socket.userId, candidate, roomId });
+  });
+
+  socket.on('discussion-leave', (data) => {
+    const { roomId } = data;
+    socket.leave(`discussion_${roomId}`);
+    io.to(`discussion_${roomId}`).emit('discussion-user-left', { userId: socket.userId });
+  });
+
   socket.on('disconnect', () => {
     console.log('🔌 Client disconnected:', socket.id);
+    // If they were in a discussion, notify others
+    if (socket.roomId) {
+      io.to(`discussion_${socket.roomId}`).emit('discussion-user-left', { userId: socket.userId });
+    }
   });
 });
 
