@@ -793,10 +793,11 @@ app.post('/api/discussions/create', authenticate, async (req, res) => {
     active: true
   };
   await insertDiscussion(room);
-  // Notify all participants
+  // Notify all participants with a socket event (discussion-invite) for call overlay
   const user = await findOneUser({ _id: req.userId });
   const msg = `${user.username} started a discussion!`;
   for (const uid of friendIds) {
+    // Store notification in DB
     await insertNotification({
       to: uid,
       from: req.userId,
@@ -806,7 +807,14 @@ app.post('/api/discussions/create', authenticate, async (req, res) => {
       read: false,
       createdAt: new Date().toISOString()
     });
+    // Also emit real-time event for notification bell
     io.to(`user_${uid}`).emit('new-notification', { message: msg });
+    // Emit the specific discussion-invite event for the call overlay
+    io.to(`user_${uid}`).emit('discussion-invite', { 
+      from: req.userId, 
+      fromUsername: user.username, 
+      roomId 
+    });
   }
   res.json({ roomId });
 });
@@ -913,7 +921,7 @@ io.on('connection', (socket) => {
 //  SERVE FRONTEND
 // ============================================================
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard3.html'));
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 // ============================================================
