@@ -1227,7 +1227,7 @@
 
 <script>
 // ============================================================
-//  FULL JAVASCRIPT (COMPLETE – all functions defined)
+//  FULL JAVASCRIPT (COMPLETE – with Discussion fixes)
 // ============================================================
 const API_BASE = '';
 let currentUser = null;
@@ -1348,17 +1348,19 @@ async function initDashboard() {
       const { from, fromUsername, roomId } = data;
       showDiscussionIncomingCall(from, fromUsername, roomId);
     });
-    // Discussion signaling
+    // Discussion signaling (fixed)
     socket.on('discussion-user-joined', (data) => {
       const { userId } = data;
       if (userId !== currentUser._id && !discussionPeers[userId]) {
-        createDiscussionPeer(userId);
+        sendOfferToPeer(userId);
       }
     });
     socket.on('discussion-offer', async (data) => {
       const { from, offer } = data;
-      if (!discussionPeers[from]) { createDiscussionPeer(from); }
-      const pc = discussionPeers[from];
+      let pc = discussionPeers[from];
+      if (!pc) {
+        pc = createPeer(from);
+      }
       await pc.setRemoteDescription(new RTCSessionDescription(offer));
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
@@ -2275,7 +2277,7 @@ document.getElementById('voiceCallBtn').addEventListener('click', () => startCal
 document.getElementById('videoCallBtn').addEventListener('click', () => startCall(true));
 
 // ============================================================
-//  DISCUSSIONS (with call overlay)
+//  DISCUSSIONS (fixed version)
 // ============================================================
 function showDiscussionIncomingCall(from, fromUsername, roomId) {
   document.getElementById('callerName').textContent = fromUsername + ' (Discussion)';
@@ -2289,21 +2291,26 @@ async function joinDiscussion(roomId) {
   document.getElementById('discussionSetup').style.display = 'none';
   document.getElementById('discussionRoom').style.display = 'block';
   document.getElementById('discussionGrid').innerHTML = '';
+
   const discussionTab = document.querySelector('.tab-btn[data-tab="discussions"]');
-  if (discussionTab) { discussionTab.click(); }
+  if (discussionTab) discussionTab.click();
+
   try {
     const roomData = await apiCall(`/api/discussions/${roomId}`);
     discussionLeaderId = roomData.leader;
+
+    // Get local stream
     localDiscussionStream = await navigator.mediaDevices.getUserMedia({
       audio: { echoCancellation: true, noiseSuppression: true },
       video: true
     });
+
+    // Add own tile
     addDiscussionTile(currentUser._id, localDiscussionStream, true, discussionLeaderId === currentUser._id);
+
+    // Notify server we've joined – others will send offers
     socket.emit('discussion-join', { roomId });
-    const participants = roomData.participants.filter(id => id !== currentUser._id);
-    for (const uid of participants) {
-      if (!discussionPeers[uid]) { createDiscussionPeer(uid); }
-    }
+
     isDiscussionActive = true;
     incomingDiscussionData = null;
   } catch (e) {
@@ -2313,10 +2320,13 @@ async function joinDiscussion(roomId) {
 }
 window.joinDiscussion = joinDiscussion;
 
-function createDiscussionPeer(userId) {
+function createPeer(userId) {
   const pc = new RTCPeerConnection(callConfiguration);
   discussionPeers[userId] = pc;
+
+  // Add local tracks
   localDiscussionStream.getTracks().forEach(track => pc.addTrack(track, localDiscussionStream));
+
   pc.ontrack = (event) => {
     const stream = event.streams[0];
     if (!discussionStreams[userId]) {
@@ -2324,15 +2334,32 @@ function createDiscussionPeer(userId) {
       addDiscussionTile(userId, stream, false, userId === discussionLeaderId);
     }
   };
+
   pc.onicecandidate = (event) => {
     if (event.candidate) {
-      socket.emit('discussion-ice', { roomId: discussionRoomId, target: userId, candidate: event.candidate });
+      socket.emit('discussion-ice', {
+        roomId: discussionRoomId,
+        target: userId,
+        candidate: event.candidate
+      });
     }
   };
-  pc.createOffer().then(offer => {
-    pc.setLocalDescription(offer);
+
+  return pc;
+}
+
+async function sendOfferToPeer(userId) {
+  let pc = discussionPeers[userId];
+  if (!pc) {
+    pc = createPeer(userId);
+  }
+  try {
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
     socket.emit('discussion-offer', { roomId: discussionRoomId, target: userId, offer });
-  }).catch(console.error);
+  } catch (err) {
+    console.error('Error sending offer to', userId, err);
+  }
 }
 
 function addDiscussionTile(userId, stream, isLocal, isLeader) {
@@ -2723,7 +2750,7 @@ function setupEventListeners() {
 //  START
 // ============================================================
 document.addEventListener('DOMContentLoaded', initDashboard);
-console.log('🚀 Mzuzu Hub Dashboard loaded with Discussion Call Overlay');
+console.log('🚀 Mzuzu Hub Dashboard loaded with Discussion fixes');
 console.log('👨‍💻 Developed by Chimombo Emmanuel — Mzuzu University');
 </script>
 </body>
