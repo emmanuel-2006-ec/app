@@ -10,20 +10,13 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <style>
-    /* ===== RESET & BASE ===== */
+    /* ===== COMPLETE CSS – same as before ===== */
     * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family: "Inter", sans-serif;
-      background: #f0f2f5;
-      color: #1a1a2e;
-      min-height: 100vh;
-      transition: background 0.3s, color 0.3s;
-    }
+    body { font-family: "Inter", sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; transition: background 0.3s, color 0.3s; }
     ::-webkit-scrollbar { width:6px; }
     ::-webkit-scrollbar-track { background:#e8ecf1; }
     ::-webkit-scrollbar-thumb { background:#1a472a; border-radius:8px; }
 
-    /* ===== DARK MODE ===== */
     body.dark-mode { background: #1a1a2e; color: #e0e0e0; }
     body.dark-mode .dash-header { background: #0f0f1a; }
     body.dark-mode .dash-tabs,
@@ -38,7 +31,8 @@
     body.dark-mode .dash-sidebar,
     body.dark-mode .notif-dropdown,
     body.dark-mode .dropdown-menu,
-    body.dark-mode .error-overlay { background: #2a2a3e; color: #e0e0e0; }
+    body.dark-mode .error-overlay,
+    body.dark-mode .discussion-tile { background: #2a2a3e; color: #e0e0e0; }
     body.dark-mode .tab-btn { color: #b0b0c0; }
     body.dark-mode .tab-btn.active { color: #f5c842; }
     body.dark-mode .post-card .post-header .post-user .pname,
@@ -100,7 +94,6 @@
     body.dark-mode .video-grid .video-card .video-info h4 { color: #e0e0e0; }
     body.dark-mode .video-grid .video-card .video-info p { color: #9a9aaa; }
 
-    /* ===== HEADER ===== */
     .dash-header {
       background: linear-gradient(135deg, #0f2a1a 0%, #1a472a 60%, #2d7d3a 100%);
       padding: 10px 20px;
@@ -159,7 +152,6 @@
     .dropdown-menu .menu-item.logout { color:#c0392b; }
     .dropdown-menu .menu-item.logout i { color:#c0392b; }
 
-    /* ===== NOTIFICATIONS ===== */
     .notif-btn {
       background:rgba(255,255,255,0.12); border:none; color:#fff;
       width:36px; height:36px; border-radius:10px; font-size:18px;
@@ -197,7 +189,6 @@
     .notif-dropdown .mark-read:hover { background:#f0f4f8; }
     .notif-empty { padding:20px; text-align:center; color:#6a7a8a; }
 
-    /* ===== TABS ===== */
     .dash-tabs {
       display:flex; background:#fff; border-bottom:1px solid #e8ecf1;
       padding:0 16px; position:sticky; top:58px; z-index:90;
@@ -222,7 +213,6 @@
       display:none; align-items:center; justify-content:center;
     }
 
-    /* ===== STORIES ===== */
     .stories-bar {
       background:#fff; padding:10px 16px;
       margin:10px 16px 0; border-radius:12px;
@@ -256,7 +246,6 @@
       margin-left:4px;
     }
 
-    /* ===== MAIN LAYOUT ===== */
     .dash-body {
       display:flex; padding:12px 16px 80px; gap:16px;
       max-width:1400px; margin:0 auto;
@@ -314,12 +303,10 @@
       width:6px; height:6px; background:#b0c0d0; border-radius:50%; flex-shrink:0;
     }
 
-    /* ===== TAB PANELS ===== */
     .tab-panel { display:none; animation:fadeUp 0.3s ease; }
     .tab-panel.active { display:block; }
     @keyframes fadeUp { 0%{ opacity:0; transform:translateY(12px); } 100%{ opacity:1; transform:translateY(0); } }
 
-    /* ===== CREATE POST ===== */
     .create-post-box {
       background:#fff; border-radius:12px; padding:12px 16px;
       margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
@@ -382,7 +369,6 @@
     }
     .sticker-picker .sticker-emoji:hover { transform:scale(1.2); border-color:#1a472a; }
 
-    /* ===== POST CARD ===== */
     .post-card {
       background:#fff; border-radius:12px; padding:12px 16px 10px;
       margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
@@ -463,7 +449,6 @@
     }
     .post-card .delete-btn:hover { color:#e74c3c; }
 
-    /* ===== FRIENDS ===== */
     .friends-grid {
       display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr));
       gap:12px;
@@ -491,7 +476,6 @@
     }
     .search-box input:focus { border-color:#1a472a; }
 
-    /* ===== CHATS ===== */
     .chat-list {
       display:flex; flex-direction:column; gap:6px;
     }
@@ -520,7 +504,6 @@
     }
     .chat-list .chat-item .delete-msg:hover { color:#e74c3c; }
 
-    /* ===== VIDEOS ===== */
     .video-grid {
       display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr));
       gap:12px;
@@ -544,7 +527,6 @@
     }
     .video-grid .video-card .video-actions button.liked { color:#e74c3c; }
 
-    /* ===== BUSINESS ===== */
     .business-grid {
       display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr));
       gap:12px;
@@ -611,7 +593,6 @@
     }
     .add-biz-form .submit-biz:hover { box-shadow:0 4px 12px rgba(26,71,42,0.30); }
 
-    /* ===== MODALS ===== */
     .modal-overlay {
       display:none; position:fixed; inset:0;
       background:rgba(0,0,0,0.50); backdrop-filter:blur(6px);
@@ -648,7 +629,6 @@
       border-color:#1a472a; background:#fff;
     }
 
-    /* ===== CHAT MODAL ===== */
     .chat-modal .modal-box { max-width:480px; }
     .chat-modal .chat-messages {
       max-height:280px; overflow-y:auto; padding:6px 0;
@@ -721,7 +701,6 @@
     }
     .chat-modal .chat-header-user h4 { font-size:15px; }
 
-    /* ===== CALL BUTTONS ===== */
     .call-btn {
       background:none; border:none; font-size:18px; cursor:pointer;
       color:#1a472a; padding:4px 8px; border-radius:8px;
@@ -729,7 +708,6 @@
     }
     .call-btn:hover { background:#f0f4f8; }
 
-    /* ===== CALL OVERLAY ===== */
     #callOverlay {
       display:none;
       position:fixed;
@@ -839,7 +817,47 @@
       transform:scale(1.05);
     }
 
-    /* ===== STORY VIEWER ===== */
+    #discussionGrid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+      gap:12px;
+      margin-top:12px;
+    }
+    .discussion-tile {
+      position:relative;
+      background:#111;
+      border-radius:12px;
+      overflow:hidden;
+      aspect-ratio:16/9;
+    }
+    .discussion-tile video {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      background:#222;
+    }
+    .discussion-tile .tile-label {
+      position:absolute;
+      bottom:8px;
+      left:8px;
+      background:rgba(0,0,0,0.6);
+      color:#fff;
+      padding:4px 10px;
+      border-radius:12px;
+      font-size:12px;
+    }
+    .discussion-tile .leader-badge {
+      position:absolute;
+      top:8px;
+      right:8px;
+      background:#f5c842;
+      color:#1a1a2e;
+      padding:2px 10px;
+      border-radius:12px;
+      font-size:10px;
+      font-weight:700;
+    }
+
     .story-viewer .modal-box { max-width:400px; text-align:center; }
     .story-viewer .story-text { font-size:20px; padding:20px 0; line-height:1.6; }
     .story-viewer .story-author {
@@ -850,7 +868,6 @@
       width:32px; height:32px; border-radius:50%; object-fit:cover;
     }
 
-    /* ===== DEVELOPER ===== */
     .dev-content { padding:8px 0; }
     .dev-content .dev-avatar { font-size:40px; color:#1a472a; text-align:center; }
     .dev-content h3 { font-size:17px; color:#1a472a; margin:6px 0 2px; }
@@ -865,7 +882,6 @@
     .empty-state i { font-size:40px; color:#b0c0d0; margin-bottom:8px; }
     .empty-state h3 { font-size:16px; color:#3a4a5a; }
 
-    /* ===== MOBILE NAV ===== */
     .mobile-nav {
       display:none; position:fixed; bottom:0; left:0; right:0;
       background:#fff; padding:6px 8px;
@@ -890,11 +906,13 @@
       .dash-body { padding:8px 10px 70px; }
       .friends-grid { grid-template-columns:1fr 1fr; }
       .business-grid { grid-template-columns:1fr; }
+      #discussionGrid { grid-template-columns:1fr 1fr; }
     }
     @media (max-width:480px) {
       .dash-header { padding:8px 12px; }
       .dash-header .brand h2 { font-size:14px; }
       .friends-grid { grid-template-columns:1fr 1fr; }
+      #discussionGrid { grid-template-columns:1fr; }
     }
 
     .error-overlay {
@@ -932,11 +950,9 @@
       <h2>Mzuzu <span>Hub</span></h2>
     </div>
     <div class="header-actions">
-      <!-- Night mode toggle -->
       <button class="night-toggle" id="nightModeToggle" title="Toggle Night Mode">
         <i class="fas fa-moon"></i>
       </button>
-      <!-- Notifications -->
       <div style="position:relative;">
         <button class="notif-btn" id="notifBtn">
           <i class="fas fa-bell"></i>
@@ -947,7 +963,6 @@
           <div class="mark-read" id="markAllRead">Mark all as read</div>
         </div>
       </div>
-      <!-- Profile -->
       <div class="profile-dropdown" id="profileDropdown">
         <img id="dashAvatar" src="" alt="avatar" />
         <div class="dropdown-menu" id="dropdownMenu">
@@ -959,19 +974,17 @@
     </div>
   </header>
 
-  <!-- Tabs -->
   <nav class="dash-tabs" id="dashTabs">
-    <button class="tab-btn active" data-tab="home"><i class="fas fa-home"></i> <span>Home</span></button>
-    <button class="tab-btn" data-tab="friends"><i class="fas fa-users"></i> <span>Friends</span></button>
-    <button class="tab-btn" data-tab="chats"><i class="fas fa-comment-dots"></i> <span>Chats</span></button>
-    <button class="tab-btn" data-tab="videos"><i class="fas fa-video"></i> <span>Videos</span></button>
-    <button class="tab-btn" data-tab="businesses"><i class="fas fa-store"></i> <span>Businesses</span></button>
+    <button class="tab-btn active" data-tab="home"><i class="fas fa-home"></i> Home</button>
+    <button class="tab-btn" data-tab="friends"><i class="fas fa-users"></i> Friends</button>
+    <button class="tab-btn" data-tab="chats"><i class="fas fa-comment-dots"></i> Chats</button>
+    <button class="tab-btn" data-tab="videos"><i class="fas fa-video"></i> Videos</button>
+    <button class="tab-btn" data-tab="discussions"><i class="fas fa-users"></i> Discussions</button>
+    <button class="tab-btn" data-tab="businesses"><i class="fas fa-store"></i> Businesses</button>
   </nav>
 
-  <!-- Stories -->
   <div class="stories-bar" id="storiesBar"></div>
 
-  <!-- Main Body -->
   <div class="dash-body">
     <main class="dash-main">
       <!-- HOME -->
@@ -1032,6 +1045,23 @@
         <div class="video-grid" id="videoGrid"></div>
       </div>
 
+      <!-- DISCUSSIONS -->
+      <div class="tab-panel" id="tab-discussions">
+        <div id="discussionSetup">
+          <h3 style="margin-bottom:8px;">Start a Discussion</h3>
+          <p style="font-size:13px;color:#6a7a8a;margin-bottom:12px;">Select up to 10 friends to invite.</p>
+          <div id="discussionFriendList" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;"></div>
+          <button class="btn-primary" id="startDiscussionBtn" style="width:auto;padding:10px 24px;"><i class="fas fa-video"></i> Start Discussion</button>
+        </div>
+        <div id="discussionRoom" style="display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <h3>Discussion Room</h3>
+            <button id="leaveDiscussionBtn" style="background:#e74c3c;color:#fff;border:none;padding:6px 16px;border-radius:20px;cursor:pointer;">Leave</button>
+          </div>
+          <div id="discussionGrid"></div>
+        </div>
+      </div>
+
       <!-- BUSINESSES -->
       <div class="tab-panel" id="tab-businesses">
         <div class="add-biz-form">
@@ -1066,7 +1096,6 @@
       </div>
     </main>
 
-    <!-- Right Sidebar -->
     <aside class="dash-sidebar" id="dashRight">
       <div class="online-title"><span class="dot"></span> Online</div>
       <div class="year-tabs" id="yearTabs">
@@ -1081,12 +1110,12 @@
     </aside>
   </div>
 
-  <!-- Mobile Nav -->
   <div class="mobile-nav">
     <button class="mnav-item active" data-tab="home"><i class="fas fa-home"></i> Home</button>
     <button class="mnav-item" data-tab="friends"><i class="fas fa-users"></i> Friends</button>
     <button class="mnav-item" data-tab="chats"><i class="fas fa-comment-dots"></i> Chats</button>
     <button class="mnav-item" data-tab="videos"><i class="fas fa-video"></i> Videos</button>
+    <button class="mnav-item" data-tab="discussions"><i class="fas fa-users"></i> Discussions</button>
     <button class="mnav-item" data-tab="businesses"><i class="fas fa-store"></i> Biz</button>
   </div>
 </div>
@@ -1198,7 +1227,7 @@
 
 <script>
 // ============================================================
-//  FULL JAVASCRIPT
+//  FULL JAVASCRIPT with Metered TURN integration
 // ============================================================
 const API_BASE = '';
 let currentUser = null;
@@ -1218,6 +1247,14 @@ let localStream = null;
 let remoteStream = null;
 let callActive = false;
 let incomingCallData = null;
+let incomingDiscussionData = null;
+
+let discussionRoomId = null;
+let discussionPeers = {};
+let discussionStreams = {};
+let localDiscussionStream = null;
+let isDiscussionActive = false;
+let discussionLeaderId = null;
 
 // ===== API HELPER =====
 async function apiCall(endpoint, options = {}) {
@@ -1259,22 +1296,47 @@ function getYearEmoji(year) {
   return map[year] || '🎓';
 }
 
-// ============================================================
-//  NIGHT MODE TOGGLE
-// ============================================================
+// ===== NIGHT MODE TOGGLE =====
 document.getElementById('nightModeToggle').addEventListener('click', function() {
   document.body.classList.toggle('dark-mode');
   const icon = this.querySelector('i');
-  if (document.body.classList.contains('dark-mode')) {
-    icon.className = 'fas fa-sun';
-  } else {
-    icon.className = 'fas fa-moon';
-  }
+  icon.className = document.body.classList.contains('dark-mode') ? 'fas fa-sun' : 'fas fa-moon';
 });
 
 // ============================================================
-//  DASHBOARD INIT
+//  TURN CREDENTIALS – fetched from Metered API
 // ============================================================
+let cachedIceServers = null;
+
+async function fetchTurnCredentials() {
+  // If we already have credentials, reuse them (they are valid for a while)
+  if (cachedIceServers) return cachedIceServers;
+
+  try {
+    const apiKey = 'baaa19466dcdbb2769476b13d91e80901a1a'; // Your Metered API key
+    const response = await fetch(
+      `https://mzuni.metered.live/api/v1/turn/credentials?apiKey=${apiKey}`
+    );
+    if (!response.ok) throw new Error('Failed to fetch TURN credentials');
+    const iceServers = await response.json();
+    console.log('[TURN] Credentials fetched successfully', iceServers);
+    cachedIceServers = iceServers;
+    return iceServers;
+  } catch (error) {
+    console.warn('[TURN] Failed to fetch credentials, falling back to STUN only', error);
+    // Fallback to STUN only (may not work for all networks)
+    return [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' }
+    ];
+  }
+}
+
+async function getIceServers() {
+  return await fetchTurnCredentials();
+}
+
+// ===== DASHBOARD INIT =====
 async function initDashboard() {
   const token = sessionStorage.getItem('token');
   const userData = sessionStorage.getItem('user');
@@ -1287,7 +1349,6 @@ async function initDashboard() {
     currentUser = JSON.parse(userData);
     document.getElementById('dashAvatar').src = currentUser.profilePic || getDefaultAvatar();
     document.getElementById('postUserAvatar').src = currentUser.profilePic || getDefaultAvatar();
-    // Socket connection
     socket = io(API_BASE || window.location.origin, { transports: ['websocket', 'polling'] });
     socket.emit('join', currentUser._id);
     // Socket listeners
@@ -1300,26 +1361,78 @@ async function initDashboard() {
     });
     socket.on('incoming-call', (data) => {
       const { from, offer } = data;
+      console.log('[Call] incoming-call from', from);
       showIncomingCall(from, offer);
     });
     socket.on('call-answered', async (data) => {
       const { from, answer } = data;
+      console.log('[Call] call-answered from', from);
       if (callActive && peerConnection) {
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        console.log('[Call] remote description set (answer)');
       }
     });
     socket.on('ice-candidate', async (data) => {
       const { from, candidate } = data;
+      console.log('[Call] ICE candidate from', from);
       if (peerConnection) {
-        try {
-          await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-        } catch (e) { console.error('Error adding ICE candidate:', e); }
+        try { await peerConnection.addIceCandidate(new RTCIceCandidate(candidate)); }
+        catch (e) { console.warn('[Call] Failed to add ICE candidate', e); }
       }
     });
     socket.on('call-ended', () => {
+      console.log('[Call] call-ended');
       endCall();
     });
-    // Load data
+    // Discussion invite (overlay)
+    socket.on('discussion-invite', (data) => {
+      const { from, fromUsername, roomId } = data;
+      showDiscussionIncomingCall(from, fromUsername, roomId);
+    });
+    // Discussion signaling (fixed + logs)
+    socket.on('discussion-user-joined', (data) => {
+      const { userId } = data;
+      console.log('[Discussion] user-joined:', userId);
+      if (userId !== currentUser._id && !discussionPeers[userId]) {
+        sendOfferToPeer(userId);
+      }
+    });
+    socket.on('discussion-offer', async (data) => {
+      const { from, offer } = data;
+      console.log('[Discussion] received offer from', from);
+      let pc = discussionPeers[from];
+      if (!pc) {
+        pc = await createPeer(from);
+      }
+      await pc.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      socket.emit('discussion-answer', { roomId: discussionRoomId, target: from, answer });
+      console.log('[Discussion] sent answer to', from);
+    });
+    socket.on('discussion-answer', async (data) => {
+      const { from, answer } = data;
+      console.log('[Discussion] received answer from', from);
+      const pc = discussionPeers[from];
+      if (pc) { await pc.setRemoteDescription(new RTCSessionDescription(answer)); }
+    });
+    socket.on('discussion-ice', async (data) => {
+      const { from, candidate } = data;
+      console.log('[Discussion] ICE candidate from', from);
+      const pc = discussionPeers[from];
+      if (pc) {
+        try { await pc.addIceCandidate(new RTCIceCandidate(candidate)); } catch (e) {}
+      }
+    });
+    socket.on('discussion-user-left', (data) => {
+      const { userId } = data;
+      console.log('[Discussion] user-left:', userId);
+      removeDiscussionTile(userId);
+      if (discussionPeers[userId]) {
+        discussionPeers[userId].close();
+        delete discussionPeers[userId];
+      }
+    });
     await refreshAll();
     setupEventListeners();
     setInterval(refreshAll, 30000);
@@ -1984,11 +2097,15 @@ async function renderNotifications() {
     let html = '';
     notifications.forEach(n => {
       const user = n.from ? `<span style="font-weight:600;">${n.from?.username || 'Someone'}</span>` : '';
+      let extra = '';
+      if (n.type === 'discussion_invite' && n.data && n.data.roomId) {
+        extra = ` <button onclick="joinDiscussion('${n.data.roomId}')" style="padding:2px 10px;background:#1a472a;color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:11px;">Join</button>`;
+      }
       html += `
         <div class="notif-item ${n.read ? '' : 'unread'}">
           <img src="${n.from?.profilePic || getDefaultAvatar()}" alt="" />
           <div class="ncontent">
-            ${n.message}
+            ${n.message} ${extra}
             <span class="ntime">${timeAgo(n.createdAt)}</span>
           </div>
         </div>
@@ -2062,115 +2179,166 @@ function playSound() {
 }
 
 // ============================================================
-//  CALL FUNCTIONS (FIXED)
+//  1‑TO‑1 CALL FUNCTIONS (with TURN and debug logs)
 // ============================================================
-const configuration = {
-  iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' }
-  ]
-};
-
 async function startCall(video = true) {
-  if (!currentChatTarget) return;
+  if (!currentChatTarget) {
+    console.warn('[Call] No target');
+    return;
+  }
+  console.log('[Call] Starting call (video:', video, ') to', currentChatTarget._id);
   try {
-    // Get local media
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video });
+    localStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true },
+      video: video
+    });
+    console.log('[Call] Got local stream, tracks:', localStream.getTracks().length);
     document.getElementById('localVideo').srcObject = localStream;
     document.getElementById('localVideo').style.display = 'block';
+    document.getElementById('localVideo').play().catch(e => console.warn('Local video play error', e));
 
-    // Create peer connection
-    peerConnection = new RTCPeerConnection(configuration);
-    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+    const iceServers = await getIceServers();
+    peerConnection = new RTCPeerConnection({ iceServers });
+    localStream.getTracks().forEach(track => {
+      peerConnection.addTrack(track, localStream);
+      console.log('[Call] Added track:', track.kind);
+    });
 
-    // Handle remote stream
     peerConnection.ontrack = (event) => {
+      console.log('[Call] ontrack triggered, stream:', event.streams[0]);
       remoteStream = event.streams[0];
-      document.getElementById('remoteVideo').srcObject = remoteStream;
-      document.getElementById('remoteVideo').style.display = 'block';
+      const remoteVideo = document.getElementById('remoteVideo');
+      remoteVideo.srcObject = remoteStream;
+      remoteVideo.style.display = 'block';
+      remoteVideo.play().catch(e => console.warn('Remote video play error', e));
     };
 
-    // Handle ICE candidates
     peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
+        console.log('[Call] Local ICE candidate');
         socket.emit('ice-candidate', { to: currentChatTarget._id, candidate: event.candidate });
       }
     };
 
-    // Create offer
+    peerConnection.oniceconnectionstatechange = () => {
+      console.log('[Call] ICE connection state:', peerConnection.iceConnectionState);
+    };
+
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
+    console.log('[Call] Created offer, sending...');
     socket.emit('call-user', { to: currentChatTarget._id, offer });
 
     callActive = true;
     document.getElementById('callOverlay').classList.add('active');
     document.getElementById('incomingCallBox').classList.remove('show');
     document.getElementById('remoteVideo').style.display = 'block';
+    incomingDiscussionData = null;
   } catch (e) {
     alert('Could not start call: ' + e.message);
-    console.error(e);
+    console.error('[Call] Error starting call:', e);
   }
 }
 
 function showIncomingCall(from, offer) {
+  console.log('[Call] Showing incoming call from', from);
   document.getElementById('callerName').textContent = 'Unknown';
   document.getElementById('incomingCallBox').classList.add('show');
   document.getElementById('callOverlay').classList.add('active');
   incomingCallData = { from, offer };
+  incomingDiscussionData = null;
   playSound();
 }
 
-document.getElementById('acceptCallBtn').addEventListener('click', async () => {
-  if (!incomingCallData) return;
+document.getElementById('acceptCallBtn').addEventListener('click', async function() {
+  if (incomingDiscussionData) {
+    await joinDiscussion(incomingDiscussionData.roomId);
+    document.getElementById('incomingCallBox').classList.remove('show');
+    document.getElementById('callOverlay').classList.remove('active');
+    incomingDiscussionData = null;
+    return;
+  }
+  if (!incomingCallData) {
+    console.warn('[Call] No incoming call data');
+    return;
+  }
   const { from, offer } = incomingCallData;
+  console.log('[Call] Accepting call from', from);
   try {
-    // Get local media
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+    localStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true },
+      video: true
+    });
+    console.log('[Call] Got local stream for answer, tracks:', localStream.getTracks().length);
     document.getElementById('localVideo').srcObject = localStream;
     document.getElementById('localVideo').style.display = 'block';
+    document.getElementById('localVideo').play().catch(e => console.warn('Local video play error', e));
 
-    // Create peer connection
-    peerConnection = new RTCPeerConnection(configuration);
-    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+    const iceServers = await getIceServers();
+    peerConnection = new RTCPeerConnection({ iceServers });
+    localStream.getTracks().forEach(track => {
+      peerConnection.addTrack(track, localStream);
+      console.log('[Call] Added track:', track.kind);
+    });
 
-    // Handle remote stream
     peerConnection.ontrack = (event) => {
+      console.log('[Call] ontrack (answer side), stream:', event.streams[0]);
       remoteStream = event.streams[0];
-      document.getElementById('remoteVideo').srcObject = remoteStream;
-      document.getElementById('remoteVideo').style.display = 'block';
+      const remoteVideo = document.getElementById('remoteVideo');
+      remoteVideo.srcObject = remoteStream;
+      remoteVideo.style.display = 'block';
+      remoteVideo.play().catch(e => console.warn('Remote video play error', e));
     };
 
-    // Handle ICE candidates
     peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
+        console.log('[Call] Local ICE candidate (answer side)');
         socket.emit('ice-candidate', { to: from, candidate: event.candidate });
       }
     };
 
-    // Set remote description (offer)
+    peerConnection.oniceconnectionstatechange = () => {
+      console.log('[Call] ICE connection state (answer side):', peerConnection.iceConnectionState);
+    };
+
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-    // Create answer
+    console.log('[Call] Remote description set (offer)');
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
     socket.emit('answer-call', { to: from, answer });
+    console.log('[Call] Answer sent');
 
     callActive = true;
     document.getElementById('incomingCallBox').classList.remove('show');
     document.getElementById('remoteVideo').style.display = 'block';
+    incomingCallData = null;
   } catch (e) {
     alert('Could not accept call: ' + e.message);
-    console.error(e);
+    console.error('[Call] Error accepting call:', e);
   }
 });
 
-document.getElementById('declineCallBtn').addEventListener('click', () => {
+document.getElementById('declineCallBtn').addEventListener('click', function() {
+  if (incomingDiscussionData) {
+    document.getElementById('incomingCallBox').classList.remove('show');
+    document.getElementById('callOverlay').classList.remove('active');
+    incomingDiscussionData = null;
+    return;
+  }
   if (incomingCallData) {
     socket.emit('end-call', { to: incomingCallData.from });
+    incomingCallData = null;
   }
   endCall();
 });
 
-document.getElementById('endCallBtn').addEventListener('click', () => {
+document.getElementById('endCallBtn').addEventListener('click', function() {
+  if (incomingDiscussionData) {
+    document.getElementById('incomingCallBox').classList.remove('show');
+    document.getElementById('callOverlay').classList.remove('active');
+    incomingDiscussionData = null;
+    return;
+  }
   if (currentChatTarget) {
     socket.emit('end-call', { to: currentChatTarget._id });
   }
@@ -2178,6 +2346,7 @@ document.getElementById('endCallBtn').addEventListener('click', () => {
 });
 
 function endCall() {
+  console.log('[Call] Ending call');
   if (localStream) {
     localStream.getTracks().forEach(track => track.stop());
     localStream = null;
@@ -2197,6 +2366,218 @@ function endCall() {
 
 document.getElementById('voiceCallBtn').addEventListener('click', () => startCall(false));
 document.getElementById('videoCallBtn').addEventListener('click', () => startCall(true));
+
+// ============================================================
+//  DISCUSSIONS (with TURN support and debug logs)
+// ============================================================
+function showDiscussionIncomingCall(from, fromUsername, roomId) {
+  document.getElementById('callerName').textContent = fromUsername + ' (Discussion)';
+  document.getElementById('incomingCallBox').classList.add('show');
+  document.getElementById('callOverlay').classList.add('active');
+  incomingDiscussionData = { from, roomId };
+}
+
+async function joinDiscussion(roomId) {
+  discussionRoomId = roomId;
+  document.getElementById('discussionSetup').style.display = 'none';
+  document.getElementById('discussionRoom').style.display = 'block';
+  document.getElementById('discussionGrid').innerHTML = '';
+
+  const discussionTab = document.querySelector('.tab-btn[data-tab="discussions"]');
+  if (discussionTab) discussionTab.click();
+
+  try {
+    const roomData = await apiCall(`/api/discussions/${roomId}`);
+    discussionLeaderId = roomData.leader;
+
+    // Get local stream
+    localDiscussionStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true },
+      video: true
+    });
+
+    // Add own tile
+    addDiscussionTile(currentUser._id, localDiscussionStream, true, discussionLeaderId === currentUser._id);
+
+    // Notify server we've joined – others will send offers
+    socket.emit('discussion-join', { roomId });
+    console.log('[Discussion] Joined room', roomId);
+
+    isDiscussionActive = true;
+    incomingDiscussionData = null;
+  } catch (e) {
+    alert('Error joining discussion: ' + e.message);
+    endDiscussion();
+  }
+}
+window.joinDiscussion = joinDiscussion;
+
+async function createPeer(userId) {
+  console.log('[Discussion] Creating peer for', userId);
+  const iceServers = await getIceServers();
+  const pc = new RTCPeerConnection({ iceServers });
+  discussionPeers[userId] = pc;
+
+  // Add local tracks
+  localDiscussionStream.getTracks().forEach(track => pc.addTrack(track, localDiscussionStream));
+
+  pc.ontrack = (event) => {
+    console.log('[Discussion] ontrack for', userId, 'stream:', event.streams[0]);
+    const stream = event.streams[0];
+    if (!discussionStreams[userId]) {
+      discussionStreams[userId] = stream;
+      addDiscussionTile(userId, stream, false, userId === discussionLeaderId);
+    }
+  };
+
+  pc.onicecandidate = (event) => {
+    if (event.candidate) {
+      console.log('[Discussion] ICE candidate for', userId);
+      socket.emit('discussion-ice', {
+        roomId: discussionRoomId,
+        target: userId,
+        candidate: event.candidate
+      });
+    }
+  };
+
+  return pc;
+}
+
+async function sendOfferToPeer(userId) {
+  console.log('[Discussion] Sending offer to', userId);
+  let pc = discussionPeers[userId];
+  if (!pc) {
+    pc = await createPeer(userId);
+  }
+  try {
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    socket.emit('discussion-offer', { roomId: discussionRoomId, target: userId, offer });
+    console.log('[Discussion] Offer sent to', userId);
+  } catch (err) {
+    console.error('Error sending offer to', userId, err);
+  }
+}
+
+function addDiscussionTile(userId, stream, isLocal, isLeader) {
+  const grid = document.getElementById('discussionGrid');
+  const existing = document.getElementById(`discussion-tile-${userId}`);
+  if (existing) {
+    console.log('[Discussion] Tile already exists for', userId);
+    return;
+  }
+  console.log('[Discussion] Adding tile for', userId, 'isLocal:', isLocal);
+  const tile = document.createElement('div');
+  tile.id = `discussion-tile-${userId}`;
+  tile.className = 'discussion-tile';
+  const video = document.createElement('video');
+  video.autoplay = true;
+  video.playsinline = true;
+  if (isLocal) video.muted = true;
+  video.srcObject = stream;
+  // Force play
+  video.play().catch(e => console.warn('Autoplay blocked for', userId, e));
+  video.style.width = '100%';
+  video.style.height = '100%';
+  video.style.objectFit = 'cover';
+  tile.appendChild(video);
+  const label = document.createElement('div');
+  label.className = 'tile-label';
+  label.textContent = isLocal ? 'You' : 'Participant';
+  tile.appendChild(label);
+  if (isLeader && isLocal) {
+    const badge = document.createElement('div');
+    badge.className = 'leader-badge';
+    badge.textContent = '👑 Leader';
+    tile.appendChild(badge);
+  }
+  grid.appendChild(tile);
+}
+
+function removeDiscussionTile(userId) {
+  const tile = document.getElementById(`discussion-tile-${userId}`);
+  if (tile) tile.remove();
+  delete discussionStreams[userId];
+}
+
+document.getElementById('leaveDiscussionBtn').addEventListener('click', async function() {
+  if (!discussionRoomId) return;
+  try {
+    await apiCall('/api/discussions/leave', { method: 'POST', body: JSON.stringify({ roomId: discussionRoomId }) });
+    socket.emit('discussion-leave', { roomId: discussionRoomId });
+    endDiscussion();
+  } catch (e) {
+    alert('Error leaving: ' + e.message);
+  }
+});
+
+function endDiscussion() {
+  if (localDiscussionStream) {
+    localDiscussionStream.getTracks().forEach(t => t.stop());
+  }
+  Object.values(discussionPeers).forEach(pc => pc.close());
+  discussionPeers = {};
+  discussionStreams = {};
+  localDiscussionStream = null;
+  isDiscussionActive = false;
+  discussionRoomId = null;
+  discussionLeaderId = null;
+  document.getElementById('discussionGrid').innerHTML = '';
+  document.getElementById('discussionSetup').style.display = 'block';
+  document.getElementById('discussionRoom').style.display = 'none';
+  incomingDiscussionData = null;
+}
+
+async function renderDiscussionFriends() {
+  const container = document.getElementById('discussionFriendList');
+  if (!container) return;
+  try {
+    const friends = await apiCall('/api/friends');
+    if (friends.length === 0) {
+      container.innerHTML = '<p style="color:#6a7a8a;">You have no friends to invite.</p>';
+      return;
+    }
+    let html = '';
+    friends.forEach(f => {
+      html += `
+        <label style="display:flex;align-items:center;gap:6px;padding:4px 10px;background:#f0f4f8;border-radius:20px;cursor:pointer;">
+          <input type="checkbox" class="friend-check" value="${f._id}" />
+          <img src="${f.profilePic || getDefaultAvatar()}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;" />
+          <span>${f.username}</span>
+        </label>
+      `;
+    });
+    container.innerHTML = html;
+    container.querySelectorAll('.friend-check').forEach(cb => {
+      cb.addEventListener('change', function() {
+        const checked = container.querySelectorAll('.friend-check:checked');
+        if (checked.length > 10) {
+          this.checked = false;
+          alert('You can select up to 10 friends.');
+        }
+      });
+    });
+  } catch (e) {
+    container.innerHTML = `<p style="color:#e74c3c;">Error loading friends.</p>`;
+  }
+}
+
+document.getElementById('startDiscussionBtn').addEventListener('click', async function() {
+  const container = document.getElementById('discussionFriendList');
+  const checked = container.querySelectorAll('.friend-check:checked');
+  const friendIds = Array.from(checked).map(cb => cb.value);
+  if (friendIds.length === 0) {
+    alert('Select at least one friend.');
+    return;
+  }
+  try {
+    const data = await apiCall('/api/discussions/create', { method: 'POST', body: JSON.stringify({ friendIds }) });
+    await joinDiscussion(data.roomId);
+  } catch (e) {
+    alert('Error starting discussion: ' + e.message);
+  }
+});
 
 // ============================================================
 //  CREATE POST
@@ -2457,6 +2838,7 @@ function setupEventListeners() {
       }
       if (tab === 'chats') renderChatList();
       if (tab === 'videos') renderVideos();
+      if (tab === 'discussions') renderDiscussionFriends();
       if (tab === 'businesses') renderBusinesses();
     });
   });
@@ -2472,7 +2854,7 @@ function setupEventListeners() {
 //  START
 // ============================================================
 document.addEventListener('DOMContentLoaded', initDashboard);
-console.log('🚀 Mzuzu Hub Dashboard loaded (fixed calls)');
+console.log('🚀 Mzuzu Hub Dashboard loaded with Metered TURN integration');
 console.log('👨‍💻 Developed by Chimombo Emmanuel — Mzuzu University');
 </script>
 </body>
