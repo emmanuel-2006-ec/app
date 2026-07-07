@@ -761,7 +761,7 @@ app.post('/api/notifications/read', authenticate, async (req, res) => {
 });
 
 // ============================================================
-//  DISCUSSIONS (NEW)
+//  DISCUSSIONS
 // ============================================================
 app.post('/api/discussions/create', authenticate, async (req, res) => {
   const { friendIds } = req.body;
@@ -920,8 +920,9 @@ io.on('connection', (socket) => {
 // ============================================================
 //  SERVE FRONTEND
 // ============================================================
+// Change the filename to match your HTML file (e.g., 'dashboard.html')
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+  res.sendFile(path.join(__dirname, 'public', 'dashboard9.html'));
 });
 
 // ============================================================
