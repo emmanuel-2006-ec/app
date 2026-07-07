@@ -23,6 +23,23 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ============================================================
+//  🔒 FORCE HTTPS (trust proxy + redirect)
+// ============================================================
+app.set('trust proxy', true);
+
+app.use((req, res, next) => {
+  // If the proxy tells us the original protocol was HTTP, redirect to HTTPS
+  if (req.headers['x-forwarded-proto'] !== 'https' && req.headers['x-forwarded-proto'] !== undefined) {
+    return res.redirect(`https://${req.headers.host}${req.url}`);
+  }
+  // If the connection is not secure and we're not on localhost, redirect
+  if (!req.secure && req.hostname !== 'localhost' && req.hostname !== '127.0.0.1') {
+    return res.redirect(`https://${req.headers.host}${req.url}`);
+  }
+  next();
+});
+
 // Log all requests
 app.use((req, res, next) => {
   console.log(`📨 ${req.method} ${req.url}`);
@@ -910,7 +927,6 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('🔌 Client disconnected:', socket.id);
-    // If they were in a discussion, notify others
     if (socket.roomId) {
       io.to(`discussion_${socket.roomId}`).emit('discussion-user-left', { userId: socket.userId });
     }
@@ -920,9 +936,8 @@ io.on('connection', (socket) => {
 // ============================================================
 //  SERVE FRONTEND
 // ============================================================
-// Change the filename to match your HTML file (e.g., 'dashboard.html')
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard9.html'));
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 // ============================================================
